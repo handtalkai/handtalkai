@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🖐️ Real-Time Hand Gesture Recognition AI System
 
 A production-grade, modular gesture recognition system using **MediaPipe Hands**, **TensorFlow/Keras**, and **OpenCV**. Supports static and dynamic (LSTM) gesture classification with real-time webcam inference.
@@ -185,3 +186,21 @@ After training, the `reports/` folder contains:
 - `confusion_static.png` — per-class confusion matrix (raw + normalised)
 - `class_distribution.png` — sample counts per class
 - `report_static.json` — full classification report (precision/recall/F1)
+=======
+## Hi there 👋
+
+<!--
+**handtalkai/handtalkai** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+
+Here are some ideas to get you started:
+
+- 🔭 I’m currently working on ...
+- 🌱 I’m currently learning ...
+- 👯 I’m looking to collaborate on ...
+- 🤔 I’m looking for help with ...
+- 💬 Ask me about ...
+- 📫 How to reach me: ...
+- 😄 Pronouns: ...
+- ⚡ Fun fact: ...
+-->
+>>>>>>> 2f8aefb07a35e290bc9207a02e0f877ba162844a
