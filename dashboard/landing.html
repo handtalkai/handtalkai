@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HandTalk AI — AI-Powered Filipino Sign Language Translator</title>
+  <meta name="description" content="HandTalk AI translates Filipino Sign Language into text and speech in real time using computer vision and machine learning.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="landing.css">
+  <script>
+    (function () {
+      try {
+        var t = JSON.parse(localStorage.getItem('handtalk_settings') || '{}').theme;
+        if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body class="landing-body">
+
+<!-- ───────────────────────── Navigation ───────────────────────── -->
+<header class="lp-nav" id="lp-nav">
+  <div class="lp-nav-inner">
+    <a href="#hero" class="lp-brand">
+      <span class="lp-brand-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/>
+          <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/>
+          <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/>
+          <path d="M6 14a2 2 0 0 0 0-4H4a2 2 0 0 0 0 4"/>
+          <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8H6a2 2 0 0 0-2-2v0"/>
+        </svg>
+      </span>
+      <span class="lp-brand-text"><span class="lp-brand-hand">HandTalk</span> <span class="lp-brand-ai">AI</span></span>
+    </a>
+
+    <nav class="lp-links">
+      <a href="#hero" class="lp-active">Home</a>
+      <a href="#about">About</a>
+      <a href="#features">Features</a>
+      <a href="#how-it-works">How It Works</a>
+      <span class="lp-nav-indicator" id="lp-nav-indicator" aria-hidden="true"></span>
+    </nav>
+
+    <div class="lp-nav-actions" id="lp-nav-actions">
+      <!-- Filled in by JS once /api/me resolves: logged-out shows
+           "Try Live Demo" (opens the Login Required modal),
+           logged-in shows Dashboard. -->
+      <button type="button" class="btn btn-start" id="nav-try-demo">Try Live Demo</button>
+    </div>
+
+    <button class="lp-burger" id="lp-burger" aria-label="Toggle menu">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="lp-mobile-menu" id="lp-mobile-menu">
+    <a href="#hero">Home</a>
+    <a href="#about">About</a>
+    <a href="#features">Features</a>
+    <a href="#how-it-works">How It Works</a>
+    <div class="lp-mobile-actions" id="lp-mobile-actions">
+      <button type="button" class="btn btn-start" id="nav-try-demo-mobile">Try Live Demo</button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ───────────────────────── Hero ───────────────────────── -->
+  <section class="lp-hero" id="hero">
+    <div class="lp-mesh"></div>
+
+    <div class="lp-hero-inner">
+      <div class="lp-hero-copy">
+        <div class="lp-eyebrow lp-hero-eyebrow">
+          <svg class="lp-eyebrow-leaf lp-eyebrow-leaf-left" width="22" height="30" viewBox="0 0 22 30" fill="none" aria-hidden="true">
+            <path d="M11 29V3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+            <ellipse cx="5" cy="8" rx="4.4" ry="2.6" transform="rotate(-40 5 8)" fill="currentColor"/>
+            <ellipse cx="4" cy="16" rx="4.4" ry="2.6" transform="rotate(-30 4 16)" fill="currentColor"/>
+            <ellipse cx="5.5" cy="24" rx="4.4" ry="2.6" transform="rotate(-20 5.5 24)" fill="currentColor"/>
+          </svg>
+          AI &amp; Computer Vision
+          <svg class="lp-eyebrow-leaf lp-eyebrow-leaf-right" width="22" height="30" viewBox="0 0 22 30" fill="none" aria-hidden="true">
+            <path d="M11 29V3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+            <ellipse cx="17" cy="8" rx="4.4" ry="2.6" transform="rotate(40 17 8)" fill="currentColor"/>
+            <ellipse cx="18" cy="16" rx="4.4" ry="2.6" transform="rotate(30 18 16)" fill="currentColor"/>
+            <ellipse cx="16.5" cy="24" rx="4.4" ry="2.6" transform="rotate(20 16.5 24)" fill="currentColor"/>
+          </svg>
+        </div>
+        <h1 class="lp-title lp-hero-title">HandTalk AI</h1>
+        <p class="lp-subtitle lp-hero-subtitle">AI-Powered Sign Language Translator</p>
+        <p class="lp-desc lp-hero-desc">
+          Convert Sign Language gestures into text and speech in
+          real time using artificial intelligence and computer vision technology.
+        </p>
+        <div class="lp-hero-actions">
+          <button type="button" class="btn btn-start lp-btn-lg lp-hero-btn-left" id="hero-cta-primary">Get Started</button>
+          <a href="#about" class="btn lp-btn-lg lp-hero-btn-right lp-btn-outline" id="hero-cta-secondary">
+            Watch Demo
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M10 8.5v7l6-3.5z" fill="currentColor" stroke="none"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="lp-hero-visual">
+        <div class="lp-mascot-blob" aria-hidden="true"></div>
+        <span class="lp-sparkle lp-sparkle-1" aria-hidden="true"></span>
+        <span class="lp-sparkle lp-sparkle-2" aria-hidden="true"></span>
+        <span class="lp-sparkle lp-sparkle-3" aria-hidden="true"></span>
+
+        <div class="lp-float-card lp-float-card-1">
+          <img src="uploads/hero/placeholder-1.jpg" alt="Recognition preview 1"
+               onerror="this.closest('.lp-float-card').classList.add('lp-float-card-empty')">
+        </div>
+        <div class="lp-float-card lp-float-card-2">
+          <img src="uploads/hero/placeholder-2.jpg" alt="Recognition preview 2"
+               onerror="this.closest('.lp-float-card').classList.add('lp-float-card-empty')">
+        </div>
+        <div class="lp-float-card lp-float-card-3">
+          <img src="uploads/hero/placeholder-3.jpg" alt="Recognition preview 3"
+               onerror="this.closest('.lp-float-card').classList.add('lp-float-card-empty')">
+        </div>
+
+        <div class="lp-mascot lp-hand-float">
+          <svg viewBox="0 0 340 440" class="lp-mascot-svg" xmlns="http://www.w3.org/2000/svg"
+               role="img" aria-label="HandTalk AI mascot with AI hand-tracking overlay">
+            <defs>
+              <linearGradient id="mascotBodyGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#F07300"/>
+                <stop offset="1" stop-color="#C9430F"/>
+              </linearGradient>
+              <filter id="mpGlow" x="-60%" y="-60%" width="220%" height="220%">
+                <feGaussianBlur stdDeviation="2.2" result="blur"/>
+                <feMerge>
+                  <feMergeNode in="blur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+
+            <!-- Legs -->
+            <rect x="130" y="360" width="26" height="60" rx="13" fill="#8A3A12"/>
+            <rect x="184" y="360" width="26" height="60" rx="13" fill="#8A3A12"/>
+            <!-- Shoes -->
+            <rect x="118" y="412" width="50" height="20" rx="10" fill="#374151"/>
+            <rect x="172" y="412" width="50" height="20" rx="10" fill="#374151"/>
+            <rect x="118" y="424" width="50" height="5" rx="2.5" fill="#F07300"/>
+            <rect x="172" y="424" width="50" height="5" rx="2.5" fill="#F07300"/>
+
+            <!-- Left arm -->
+            <rect x="70" y="230" width="24" height="90" rx="12" fill="#E1540C" transform="rotate(8 82 230)"/>
+            <circle cx="78" cy="322" r="16" fill="#FFC966"/>
+
+            <!-- Right arm, holding a recognition device -->
+            <rect x="242" y="220" width="24" height="80" rx="12" fill="#E1540C" transform="rotate(-18 254 220)"/>
+            <circle cx="278" cy="248" r="17" fill="#FFC966"/>
+            <rect x="266" y="232" width="30" height="42" rx="6" fill="#fff" stroke="#F07300" stroke-width="2" transform="rotate(-10 281 253)"/>
+            <rect x="271" y="238" width="20" height="14" rx="2" fill="#FFA94D" transform="rotate(-10 281 253)"/>
+
+            <!-- Body / palm -->
+            <rect x="90" y="195" width="160" height="180" rx="55" fill="url(#mascotBodyGrad)"/>
+
+            <!-- Thumb -->
+            <rect x="70" y="175" width="30" height="80" rx="15" fill="#FF9640" transform="rotate(-30 85 215)"/>
+
+            <!-- Fingers -->
+            <rect x="95" y="140" width="34" height="95" rx="17" fill="#FFC966"/>
+            <rect x="135" y="100" width="34" height="135" rx="17" fill="#FFA94D"/>
+            <rect x="175" y="70" width="34" height="165" rx="17" fill="#F07300"/>
+            <rect x="211" y="95" width="34" height="140" rx="17" fill="#E1540C"/>
+
+            <!-- Face -->
+            <circle cx="152" cy="278" r="10" fill="#fff"/>
+            <circle cx="152" cy="280" r="5" fill="#1F2937"/>
+            <circle cx="149" cy="277" r="2" fill="#fff"/>
+            <circle cx="188" cy="278" r="10" fill="#fff"/>
+            <circle cx="188" cy="280" r="5" fill="#1F2937"/>
+            <circle cx="185" cy="277" r="2" fill="#fff"/>
+            <path d="M148 300 Q170 316 192 300" stroke="#1F2937" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+            <ellipse cx="132" cy="296" rx="9" ry="6" fill="#FF8A65" opacity="0.45"/>
+            <ellipse cx="208" cy="296" rx="9" ry="6" fill="#FF8A65" opacity="0.45"/>
+
+            <!-- 21-point MediaPipe hand landmark overlay -->
+            <g class="lp-mp-landmarks" filter="url(#mpGlow)">
+              <g class="lp-mp-lines">
+                <line x1="170" y1="300" x2="100" y2="220"/>
+                <line x1="100" y1="220" x2="88" y2="203"/>
+                <line x1="88" y1="203" x2="75" y2="183"/>
+                <line x1="75" y1="183" x2="62" y2="163"/>
+
+                <line x1="170" y1="300" x2="228" y2="195"/>
+                <line x1="228" y1="195" x2="228" y2="162"/>
+                <line x1="228" y1="162" x2="228" y2="128"/>
+                <line x1="228" y1="128" x2="228" y2="95"/>
+
+                <line x1="228" y1="195" x2="192" y2="195"/>
+                <line x1="192" y1="195" x2="192" y2="153"/>
+                <line x1="192" y1="153" x2="192" y2="112"/>
+                <line x1="192" y1="112" x2="192" y2="70"/>
+
+                <line x1="192" y1="195" x2="152" y2="195"/>
+                <line x1="152" y1="195" x2="152" y2="163"/>
+                <line x1="152" y1="163" x2="152" y2="132"/>
+                <line x1="152" y1="132" x2="152" y2="100"/>
+
+                <line x1="152" y1="195" x2="112" y2="195"/>
+                <line x1="112" y1="195" x2="112" y2="177"/>
+                <line x1="112" y1="177" x2="112" y2="158"/>
+                <line x1="112" y1="158" x2="112" y2="140"/>
+
+                <line x1="170" y1="300" x2="112" y2="195"/>
+              </g>
+              <g class="lp-mp-dots">
+                <circle cx="170" cy="300" r="4.5"/>
+                <circle cx="100" cy="220" r="3.5"/><circle cx="88" cy="203" r="3.5"/><circle cx="75" cy="183" r="3.5"/><circle cx="62" cy="163" r="3.5"/>
+                <circle cx="228" cy="195" r="3.5"/><circle cx="228" cy="162" r="3.5"/><circle cx="228" cy="128" r="3.5"/><circle cx="228" cy="95" r="3.5"/>
+                <circle cx="192" cy="195" r="3.5"/><circle cx="192" cy="153" r="3.5"/><circle cx="192" cy="112" r="3.5"/><circle cx="192" cy="70" r="3.5"/>
+                <circle cx="152" cy="195" r="3.5"/><circle cx="152" cy="163" r="3.5"/><circle cx="152" cy="132" r="3.5"/><circle cx="152" cy="100" r="3.5"/>
+                <circle cx="112" cy="195" r="3.5"/><circle cx="112" cy="177" r="3.5"/><circle cx="112" cy="158" r="3.5"/><circle cx="112" cy="140" r="3.5"/>
+              </g>
+            </g>
+          </svg>
+
+          <div class="lp-hand-badge lp-mascot-badge">
+            Recognizing gesture…
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── About ───────────────────────── -->
+  <section class="lp-section" id="about">
+    <div class="lp-section-inner lp-about-grid" data-reveal-sequence="about">
+      <div class="lp-reveal lp-reveal-left" data-reveal-step="0">
+        <div class="lp-video-title">
+          <span class="lp-video-title-dot"></span> Watch HandTalk AI in Action
+        </div>
+        <div class="lp-video-card" id="about-video-card" tabindex="0" role="button" aria-label="Play HandTalk AI demo video">
+          <video id="about-video" preload="metadata" playsinline controls>
+            <!-- Drop a local MP4 here, e.g. <source src="demo.mp4" type="video/mp4"> -->
+          </video>
+          <div class="lp-video-card-poster" id="about-video-poster">
+            <svg viewBox="0 0 200 240" class="lp-hand-svg" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <g stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M70 130 L70 60 a8 8 0 0 1 16 0 L86 120"/>
+                <path d="M86 118 L86 42 a8 8 0 0 1 16 0 L102 118"/>
+                <path d="M102 118 L102 48 a8 8 0 0 1 16 0 L118 122"/>
+                <path d="M118 122 L118 64 a7 7 0 0 1 14 0 L132 128"/>
+                <path d="M70 128 L52 100 a7 7 0 0 1 12-8 L80 122"/>
+                <path d="M64 150 q-4 40 20 56 q24 16 50 4 q22-10 24-36 l2-44 q0-10-9-10 q-9 0-9 10 l-1 26"/>
+              </g>
+            </svg>
+          </div>
+          <div class="lp-video-label"><span class="lp-video-label-dot"></span> Demo Preview</div>
+          <div class="lp-video-duration" id="about-video-duration">1:24</div>
+          <button type="button" class="lp-video-play-btn" id="about-video-play-btn" aria-label="Play video" tabindex="-1">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="lp-reveal lp-reveal-right" data-reveal-step="1">
+        <div class="lp-kicker-flanked lp-kicker-flanked-left">
+          <span class="lp-kicker-line" aria-hidden="true"></span>
+          <span class="lp-kicker">About us</span>
+          <span class="lp-kicker-line" aria-hidden="true"></span>
+        </div>
+        <h2 class="lp-h2">Bridging communication gaps with AI</h2>
+        <p class="lp-p">
+          HandTalk AI is a capstone project designed to bridge communication
+          gaps by translating Sign Language into readable text and
+          audible speech using AI-powered gesture recognition.
+        </p>
+        <p class="lp-p">
+          The system uses a webcam to perform real-time hand gesture
+          recognition, converts recognized gestures into text, generates
+          natural speech output, and keeps a history of past sessions so
+          users can track and revisit their conversations.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── Features ───────────────────────── -->
+  <section class="lp-section lp-section-alt" id="features">
+    <div class="lp-section-inner" data-reveal-sequence="features">
+      <div class="lp-reveal" data-reveal-step="0">
+        <div class="lp-kicker-flanked">
+          <span class="lp-kicker-line" aria-hidden="true"></span>
+          <span class="lp-kicker">Features</span>
+          <span class="lp-kicker-line" aria-hidden="true"></span>
+        </div>
+        <h2 class="lp-h2 lp-center">Everything you need to communicate</h2>
+      </div>
+
+      <div class="lp-feature-grid lp-stagger" data-reveal-step="1">
+
+        <div class="card lp-feature-card">
+          <div class="lp-feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
+              <circle cx="12" cy="13" r="3"/>
+            </svg>
+          </div>
+          <h3 class="lp-feature-title">Real-Time Gesture Recognition</h3>
+          <p class="lp-feature-desc">Recognize Sign Language hand gestures instantly using AI-powered computer vision powered by MediaPipe and TensorFlow.</p>
+        </div>
+
+        <div class="card lp-feature-card">
+          <div class="lp-feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 6.1H3"/><path d="M21 12.1H3"/><path d="M15.1 18H3"/>
+            </svg>
+          </div>
+          <h3 class="lp-feature-title">Text Conversion</h3>
+          <p class="lp-feature-desc">Convert recognized gestures into readable words and complete sentences in real time.</p>
+        </div>
+
+        <div class="card lp-feature-card">
+          <div class="lp-feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              <line x1="12" y1="19" x2="12" y2="23"/>
+              <line x1="8" y1="23" x2="16" y2="23"/>
+            </svg>
+          </div>
+          <h3 class="lp-feature-title">Text-to-Speech</h3>
+          <p class="lp-feature-desc">Speak translated sentences naturally using the built-in Text-to-Speech system.</p>
+        </div>
+
+        <div class="card lp-feature-card">
+          <div class="lp-feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+            </svg>
+          </div>
+          <h3 class="lp-feature-title">Gesture Dictionary</h3>
+          <p class="lp-feature-desc">Browse supported Sign Language gestures with visual references and organized categories.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── How It Works ───────────────────────── -->
+  <section class="lp-section" id="how-it-works">
+    <div class="lp-section-inner" data-reveal-sequence="how-it-works">
+      <div class="lp-reveal" data-reveal-step="0">
+        <div class="lp-kicker-flanked">
+          <span class="lp-kicker-line" aria-hidden="true"></span>
+          <span class="lp-kicker">Getting started</span>
+          <span class="lp-kicker-line" aria-hidden="true"></span>
+        </div>
+        <h2 class="lp-h2 lp-center">How It Works</h2>
+      </div>
+
+      <div class="lp-steps lp-stagger" data-reveal-step="1">
+        <div class="lp-step">
+          <div class="lp-step-num">1</div>
+          <h3 class="lp-step-title">Open the Translator</h3>
+          <p class="lp-step-desc">Navigate to the Translator page and activate your webcam.</p>
+        </div>
+        <div class="lp-step-line"></div>
+        <div class="lp-step">
+          <div class="lp-step-num">2</div>
+          <h3 class="lp-step-title">Perform Hand Gestures</h3>
+          <p class="lp-step-desc">Show one Sign Language gesture clearly in front of the camera.</p>
+        </div>
+        <div class="lp-step-line"></div>
+        <div class="lp-step">
+          <div class="lp-step-num">3</div>
+          <h3 class="lp-step-title">AI Recognizes the Gesture</h3>
+          <p class="lp-step-desc">The system detects your gesture and converts it into readable text in real time.</p>
+        </div>
+        <div class="lp-step-line"></div>
+        <div class="lp-step">
+          <div class="lp-step-num">4</div>
+          <h3 class="lp-step-title">Speak the Result</h3>
+          <p class="lp-step-desc">Use the built-in Text-to-Speech feature to read the translated sentence aloud.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── Final CTA ───────────────────────── -->
+  <section class="lp-section lp-cta">
+    <div class="lp-section-inner lp-cta-inner lp-reveal">
+      <h2 class="lp-h2 lp-center">Ready to communicate better?</h2>
+      <p class="lp-p lp-center">Experience real-time AI-powered gesture recognition, instant text conversion, and natural speech output—all in one Web-application.</p>
+      <div class="lp-hero-actions lp-center-flex">
+        <button type="button" class="btn btn-start lp-btn-lg" id="cta-primary">Start Translating Now</button>
+        <a href="login.html" class="btn lp-btn-lg lp-btn-outline" id="cta-secondary">Login</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── Meet the Team ───────────────────────── -->
+  <section class="lp-section lp-team">
+    <div class="lp-section-inner lp-reveal">
+      <h2 class="lp-h2 lp-center">Meet the Team</h2>
+      <p class="lp-p lp-center">Meet the developers behind HandTalk AI.</p>
+      <div class="lp-team-grid lp-stagger">
+        <div class="lp-team-card">
+          <div class="lp-team-avatar"><img src="assets/member1.jpg" alt="Member 1"></div>
+          <div class="lp-team-name">Kenneth</div>
+        </div>
+        <div class="lp-team-card">
+          <div class="lp-team-avatar"><img src="assets/team/member2.jpg" alt="Member 2"></div>
+          <div class="lp-team-name">Member 2</div>
+        </div>
+        <div class="lp-team-card">
+          <div class="lp-team-avatar"><img src="assets/team/member3.jpg" alt="Member 3"></div>
+          <div class="lp-team-name">Member 3</div>
+        </div>
+        <div class="lp-team-card">
+          <div class="lp-team-avatar"><img src="assets/team/member4.jpg" alt="Member 4"></div>
+          <div class="lp-team-name">Member 4</div>
+        </div>
+        <div class="lp-team-card">
+          <div class="lp-team-avatar"><img src="assets/team/member5.jpg" alt="Member 5"></div>
+          <div class="lp-team-name">Member 5</div>
+        </div>
+        <div class="lp-team-card">
+          <div class="lp-team-avatar"><img src="assets/team/member6.jpg" alt="Member 6"></div>
+          <div class="lp-team-name">Member 6</div>
+        </div>
+        <div class="lp-team-card">
+          <div class="lp-team-avatar"><img src="assets/team/member7.jpg" alt="Member 7"></div>
+          <div class="lp-team-name">Member 7</div>
+        </div>
+        <div class="lp-team-card">
+          <div class="lp-team-avatar"><img src="assets/team/member8.jpg" alt="Member 8"></div>
+          <div class="lp-team-name">Member 8</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ───────────────────────── Footer ───────────────────────── -->
+<footer class="lp-footer">
+  <div class="lp-footer-inner">
+    <div class="lp-brand lp-footer-brand">
+      <span class="lp-brand-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/>
+          <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/>
+          <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/>
+          <path d="M6 14a2 2 0 0 0 0-4H4a2 2 0 0 0 0 4"/>
+          <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8H6a2 2 0 0 0-2-2v0"/>
+        </svg>
+      </span>
+      <span class="lp-brand-text"><span class="lp-brand-hand">HandTalk</span> <span class="lp-brand-ai">AI</span></span>
+    </div>
+    <div class="lp-footer-links">
+      <a href="login.html">Login</a>
+      <a href="register.html">Register</a>
+    </div>
+    <div class="lp-footer-copy">HandTalk AI &copy; 2026</div>
+  </div>
+</footer>
+
+<!-- ───────────────────────── Back to Top ───────────────────────── -->
+<button type="button" class="lp-back-to-top" id="lp-back-to-top" aria-label="Back to top">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="12" y1="19" x2="12" y2="5"/>
+    <polyline points="5 12 12 5 19 12"/>
+  </svg>
+</button>
+
+<!-- ───────────────────────── Login Required Modal ───────────────────────── -->
+<div class="lp-modal-overlay" id="login-modal-overlay" aria-hidden="true">
+  <div class="lp-modal" role="dialog" aria-modal="true" aria-labelledby="login-modal-title" tabindex="-1">
+    <button type="button" class="lp-modal-close" id="login-modal-close" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+
+    <div class="lp-modal-icon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="5" y="11" width="14" height="10" rx="2"/>
+        <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+      </svg>
+    </div>
+
+    <h2 class="lp-modal-title" id="login-modal-title">Login Required</h2>
+
+    <p class="lp-modal-message">
+      You need to sign in to access HandTalk AI's live gesture recognition features.
+    </p>
+    <p class="lp-modal-submessage">
+      Features such as real-time translation, sentence history, favorites, analytics, and personalized settings are available only to registered users.
+    </p>
+
+    <div class="lp-modal-actions">
+      <a href="login.html" class="btn btn-start lp-btn-lg" id="login-modal-confirm">Go to Login</a>
+      <button type="button" class="btn lp-btn-lg" id="login-modal-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script src="landing.js"></script>
+
+</body>
+</html>

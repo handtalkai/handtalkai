@@ -1,0 +1,47 @@
+[
+  {
+    "type": "feedback",
+    "message": "your HandTalk AI Web System is Amazing!!!",
+    "timestamp": "2026-07-06T06:57:39.604694+00:00"
+  },
+  {
+    "type": "rating",
+    "rating": 5,
+    "timestamp": "2026-07-06T08:23:33.179293+00:00"
+  },
+  {
+    "type": "feedback",
+    "message": "your web app is amazing!!",
+    "timestamp": "2026-07-25T21:37:19.301413+00:00"
+  },
+  {
+    "type": "rating",
+    "rating": 5,
+    "timestamp": "2026-07-25T21:37:23.082331+00:00"
+  },
+  {
+    "type": "rating",
+    "rating": 5,
+    "timestamp": "2026-07-26T04:00:28.324150+00:00"
+  },
+  {
+    "type": "feedback",
+    "message": "your demo vid is amazing",
+    "timestamp": "2026-07-26T04:01:02.087252+00:00"
+  },
+  {
+    "type": "rating",
+    "rating": 3,
+    "timestamp": "2026-07-26T06:27:10.084659+00:00"
+  },
+  {
+    "type": "feedback",
+    "message": "wtf",
+    "timestamp": "2026-07-27T07:21:41.108839+00:00"
+  },
+  {
+    "type": "rating",
+    "rating": 5,
+    "timestamp": "2026-07-27T07:21:43.225835+00:00"
+  }
+]

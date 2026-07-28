@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In — ASL Recognition</title>
+  <link rel="stylesheet" href="style.css">
+  <script>
+    (function () {
+      try {
+        var t = JSON.parse(localStorage.getItem('handtalk_settings') || '{}').theme;
+        if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+      } catch (e) {}
+    })();
+  </script>
+  <style>
+    /* ────────────────────────────────────────────────────────────
+       Inline, page-scoped animation styles for login.html only.
+       These only define NEW auth-fx-* classes and never redeclare
+       anything from style.css (.auth-page, .auth-card, .form-group,
+       .form-input, .auth-submit, etc. are untouched and still apply
+       exactly as before). Purely additive visual polish - no
+       functional change to the login form below.
+
+       Exactly two entrance animations, by design - kept deliberately
+       minimal (no particles, no per-field stagger, no bounce/shake):
+         1. .auth-page  - slow, smooth fade-in for the whole page.
+         2. .auth-card  - normal-speed fade-in-down for the form card.
+       ──────────────────────────────────────────────────────────── */
+
+    .auth-page {
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse 55% 45% at 18% 12%, rgba(139,92,246,0.16), transparent 60%),
+        radial-gradient(ellipse 50% 45% at 85% 88%, rgba(99,102,241,0.14), transparent 60%),
+        var(--bg);
+      opacity: 0;
+      animation: auth-fx-page-fade 1.3s ease-out forwards;
+    }
+
+    @keyframes auth-fx-page-fade {
+      to { opacity: 1; }
+    }
+
+    .auth-card {
+      position: relative;
+      z-index: 1;
+      opacity: 0;
+      transform: translateY(-24px);
+      animation: auth-fx-card-in 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+      box-shadow: 0 30px 70px -24px rgba(0,0,0,0.6), 0 0 50px -16px rgba(139,92,246,0.25);
+    }
+
+    @keyframes auth-fx-card-in {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-input {
+      transition: border-color 0.15s, box-shadow 0.2s;
+    }
+
+    .form-input:focus {
+      box-shadow: 0 0 0 3px rgba(139,92,246,0.15);
+    }
+
+    .auth-submit {
+      transition: background 0.15s, transform 0.15s ease, box-shadow 0.25s ease;
+    }
+
+    .auth-submit:hover:not(:disabled) {
+      transform: scale(1.015);
+      box-shadow: 0 0 24px -2px rgba(0,229,160,0.45);
+    }
+
+    .auth-submit:active:not(:disabled) {
+      transform: scale(0.99);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .auth-page, .auth-card {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+      }
+    }
+
+    /* Back to Home button - top-left corner, subtle pill, modern. */
+    .auth-back-btn {
+      position: fixed;
+      top: 24px;
+      left: 24px;
+      z-index: 2;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 16px 9px 13px;
+      border-radius: 999px;
+      border: 1px solid var(--border2);
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(8px);
+      color: var(--text2);
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    }
+
+    .auth-back-btn svg {
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .auth-back-btn:hover {
+      background: rgba(139,92,246,0.14);
+      border-color: rgba(139,92,246,0.4);
+      color: var(--text);
+    }
+
+    .auth-back-btn:hover svg {
+      transform: translateX(-3px);
+    }
+
+    .auth-back-btn:active {
+      transform: scale(0.96);
+    }
+
+    @media (max-width: 540px) {
+      .auth-back-btn { top: 16px; left: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<a href="landing.html" class="auth-back-btn">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+    <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+  </svg>
+  Back to Home
+</a>
+
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/>
+        <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/>
+        <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/>
+        <path d="M6 14a2 2 0 0 0 0-4H4a2 2 0 0 0 0 4"/>
+        <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8H6a2 2 0 0 0-2-2v0"/>
+      </svg>
+      ASL Recognition
+    </div>
+    <div class="auth-subtitle">Sign in to continue</div>
+
+    <div class="auth-success" id="auth-success"></div>
+    <div class="auth-error" id="auth-error"></div>
+
+    <form id="login-form">
+      <div class="form-group">
+        <label class="form-label" for="identifier">Username or Email</label>
+        <input class="form-input" type="text" id="identifier" autocomplete="username" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <div class="password-field" id="password-field">
+          <input class="form-input" type="password" id="password" autocomplete="current-password" required>
+          <button type="button" class="password-toggle-btn" id="password-toggle-btn" aria-label="Show password" tabindex="-1">
+            <svg class="icon-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+              <line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
+            <svg class="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="auth-options-row">
+        <label class="remember-me-label">
+          <input type="checkbox" id="remember-me">
+          <span class="remember-me-checkbox">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </span>
+          Remember Me
+        </label>
+        <a href="forgot-password.html" class="forgot-password-link">Forgot Password?</a>
+      </div>
+
+      <button class="auth-submit" type="submit" id="login-submit">
+        <span id="login-submit-text">Sign In</span>
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      Don't have an account? <a href="register.html">Register</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  const form       = document.getElementById('login-form');
+  const errorBox   = document.getElementById('auth-error');
+  const successBox = document.getElementById('auth-success');
+  const submitBtn  = document.getElementById('login-submit');
+  const submitText = document.getElementById('login-submit-text');
+
+  function showError(msg) {
+    successBox.classList.remove('show');
+    errorBox.textContent = msg;
+    errorBox.classList.add('show');
+  }
+
+  function showSuccess(msg) {
+    errorBox.classList.remove('show');
+    successBox.textContent = msg;
+    successBox.classList.add('show');
+  }
+
+  // ── Show / hide password ──────────────────────────────────────────
+  const passwordField = document.getElementById('password-field');
+  const passwordInput = document.getElementById('password');
+  const toggleBtn      = document.getElementById('password-toggle-btn');
+
+  toggleBtn.addEventListener('click', () => {
+    const isVisible = passwordField.classList.toggle('is-visible');
+    passwordInput.type = isVisible ? 'text' : 'password';
+    toggleBtn.setAttribute('aria-label', isVisible ? 'Hide password' : 'Show password');
+  });
+
+  // Arrived here right after registering, logging out, or resetting
+  // a password? Say so.
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('registered') === '1') {
+    showSuccess('Account created successfully! Please sign in.');
+  } else if (params.get('logged_out') === '1') {
+    showSuccess('Logged out successfully.');
+  } else if (params.get('reset') === '1') {
+    showSuccess('Password reset successfully! Please sign in.');
+  }
+
+  // ── Sign In loading state ─────────────────────────────────────────
+  // Disables the button (preventing double-submits), swaps the label
+  // to a spinner + "Signing in...", and always restores it (label and
+  // enabled state) on any failure path - network error or a rejected
+  // login - so the user is never stuck looking at a frozen button.
+  function setLoading(isLoading) {
+    submitBtn.disabled = isLoading;
+    submitBtn.classList.toggle('is-loading', isLoading);
+    submitText.textContent = isLoading ? 'Signing in...' : 'Sign In';
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorBox.classList.remove('show');
+    successBox.classList.remove('show');
+    setLoading(true);
+
+    const identifier  = document.getElementById('identifier').value;
+    const password     = document.getElementById('password').value;
+    const rememberMe   = document.getElementById('remember-me').checked;
+
+    try {
+      const res  = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier, password, remember_me: rememberMe }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        showError(data.error || 'Login failed.');
+        setLoading(false);
+        return;
+      }
+
+      showSuccess('Login successful! Redirecting...');
+      submitText.textContent = 'Success!';
+      setTimeout(() => { window.location.href = 'index.html'; }, 600);
+    } catch (err) {
+      showError('Could not reach the server. Is server.py running?');
+      setLoading(false);
+    }
+  });
+</script>
+
+</body>
+</html>

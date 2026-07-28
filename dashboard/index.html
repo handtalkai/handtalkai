@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HandTalk AI — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script>
+    (function () {
+      try {
+        var t = JSON.parse(localStorage.getItem('handtalk_settings') || '{}').theme;
+        if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ── Content wrapper ──────────────────────────────────── -->
+  <div class="content-wrapper">
+
+    <!-- ── Top Navbar ───────────────────────────────────── -->
+    <div class="topbar">
+      <!-- Left: logo + title -->
+      <div class="topbar-left">
+        <div class="topbar-brand">
+          <div class="topbar-brand-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 11V6a2 2 0 0 0-4 0v5"/>
+              <path d="M14 10V4a2 2 0 0 0-4 0v6"/>
+              <path d="M10 10.5V6a2 2 0 0 0-4 0v8"/>
+              <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34L4 19"/>
+            </svg>
+          </div>
+          <span class="topbar-brand-name">HandTalk <span class="brand-ai">AI</span></span>
+        </div>
+
+        <!-- Hidden: kept so updateWelcomeName() (existing JS) still has
+             somewhere to write currentUser's initials/name. -->
+        <div class="sr-only-sidebar-user" aria-hidden="true">
+          <div class="sidebar-avatar" id="sidebar-avatar">?</div>
+          <span class="nav-user" id="nav-user"></span>
+        </div>
+      </div>
+
+      <!-- Center: page nav -->
+      <nav class="topbar-nav" id="topbar-center">
+        <button class="topbar-link active" data-page="overview" onclick="switchPage(this, 'overview')">Overview</button>
+        <button class="topbar-link" data-page="dashboard" onclick="switchPage(this, 'dashboard')">Translator</button>
+        <button class="topbar-link" data-page="dictionary" onclick="switchPage(this, 'dictionary')">Dictionary</button>
+        <button class="topbar-link" data-page="history" onclick="switchPage(this, 'history')">History</button>
+        <button class="topbar-link" data-page="settings" onclick="switchPage(this, 'settings')">Settings</button>
+        <button class="topbar-link" data-page="support" onclick="switchPage(this, 'support')">Support</button>
+
+        <!-- ── Feature-flagged pages (hidden via nav-feature-hidden) ───────
+             Restore by removing 'nav-feature-hidden' class below,
+             or set the corresponding flag in config.py to True.       -->
+        <button class="topbar-link nav-feature-hidden" data-page="favorites" data-feature="favorites" onclick="switchPage(this, 'favorites')">Favorites</button>
+        <button class="topbar-link nav-feature-hidden" data-page="analytics" data-feature="analytics" onclick="switchPage(this, 'analytics')">Analytics</button>
+        <button class="topbar-link nav-feature-hidden" data-page="profile" data-feature="profile" onclick="switchPage(this, 'profile')">Profile</button>
+      </nav>
+
+      <!-- Mobile nav toggle (hidden ≥1100px) -->
+      <button class="hamburger-btn" id="nav-hamburger" onclick="toggleMobileNav()" aria-label="Toggle navigation" aria-expanded="false" aria-controls="topbar-center">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         DASHBOARD PAGE
+    ══════════════════════════════════════════════════════ -->
+    <div class="main page-panel" id="page-dashboard">
+
+      <!-- Main grid: Analytics | Camera (largest) | History -->
+      <div class="top-row">
+
+        <!-- ── FAR-LEFT COLUMN: Gesture Analytics ── -->
+        <div class="col-analytics">
+
+          <!-- Gesture Analytics Card -->
+          <div class="card analytics-card">
+            <div class="card-header">
+              <div class="card-title">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>
+                </svg>
+                Gesture Analytics
+              </div>
+            </div>
+            <div class="card-body analytics-body">
+
+              <!-- Analytics hierarchy: Current Gesture hero, then
+                   Confidence as a full-width secondary card. -->
+              <div class="analytics-grid">
+
+                <!-- Current Gesture — hero -->
+                <div class="analytics-mini-card analytics-hero">
+                  <div class="mini-card-label">Current Gesture</div>
+                  <div class="mini-card-val" id="gesture-letter">—</div>
+                  <div class="mini-card-icon mini-icon-hand">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M18 11V6a2 2 0 0 0-4 0v5"/>
+                      <path d="M14 10V4a2 2 0 0 0-4 0v6"/>
+                      <path d="M10 10.5V6a2 2 0 0 0-4 0v8"/>
+                      <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34L4 19"/>
+                    </svg>
+                  </div>
+                  <div class="mini-card-sub" id="gesture-name">No gesture</div>
+                </div>
+
+                <!-- Confidence — now the sole secondary card, sized up to
+                     fill the width freed by the removed stat cards -->
+                <div class="analytics-mini-card analytics-full" id="confidence-mini-card">
+                  <div class="mini-card-label">Confidence</div>
+                  <div class="mini-card-val" id="conf-val">0%</div>
+                  <div class="mini-card-icon mini-icon-conf">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <circle cx="12" cy="12" r="10"/>
+                      <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                  </div>
+                  <!-- Confidence bar (hidden visually, kept for JS) -->
+                  <div class="conf-row" style="display:none">
+                    <div class="conf-bar-bg"><div class="conf-bar-fill" id="conf-fill"></div></div>
+                  </div>
+                  <div class="mini-conf-bar">
+                    <div class="mini-conf-fill" id="mini-conf-fill"></div>
+                  </div>
+                </div>
+
+              </div><!-- /analytics-grid -->
+
+              <!-- Top Predictions — what the model considered besides its
+                   top pick, straight from recognizer.predict_with_top_k(). -->
+              <div class="profile-section-label">Top Predictions</div>
+              <div class="pred-list" id="pred-list">
+                <div class="pred-row pred-rank-1"><span class="pred-rank">1</span><span class="pred-letter">—</span><div class="pred-bar-bg"><div class="pred-bar-fill" style="width:0%"></div></div><span class="pred-pct">0%</span></div>
+                <div class="pred-row pred-rank-2"><span class="pred-rank">2</span><span class="pred-letter">—</span><div class="pred-bar-bg"><div class="pred-bar-fill" style="width:0%"></div></div><span class="pred-pct">0%</span></div>
+                <div class="pred-row pred-rank-3"><span class="pred-rank">3</span><span class="pred-letter">—</span><div class="pred-bar-bg"><div class="pred-bar-fill" style="width:0%"></div></div><span class="pred-pct">0%</span></div>
+              </div>
+
+            </div>
+          </div><!-- /analytics-card -->
+
+        </div><!-- /col-analytics -->
+
+        <!-- ── MIDDLE COLUMN (largest): Camera + Sentence Builder ── -->
+        <div class="col-left">
+
+          <!-- Camera Feed Card (Sentence Builder now lives inside it, at
+               the bottom, per the translation workflow: feed -> builder
+               -> action buttons). Camera functionality below is
+               byte-for-byte the same IDs/markup as before. -->
+          <div class="card camera-card">
+            <div class="card-header camera-card-header">
+              <div class="card-title">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
+                  <circle cx="12" cy="13" r="3"/>
+                </svg>
+                Camera Feed
+              </div>
+              <span class="fps-badge-inline" id="fps-badge-inline">0 fps</span>
+              <span class="card-header-hint" id="session-time">Session: 00:00:00</span>
+            </div>
+            <div class="card-body camera-body">
+              <div class="camera-feed" id="camera-feed">
+                <div class="cam-placeholder">
+                  <div class="cam-icon-wrap">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
+                      <circle cx="12" cy="13" r="3"/>
+                    </svg>
+                  </div>
+                  <div class="cam-text">Camera feed disconnected</div>
+                  <div class="cam-hint">Click <strong>Start Feed</strong> below to connect the model pipeline.</div>
+                </div>
+                <img id="camera-img" src="" alt="Camera feed">
+                <div class="cam-live-badge" id="cam-live">LIVE</div>
+
+                <!-- Camera loading overlay: shown while starting/restarting the
+                     session, hidden once the first live frame arrives. -->
+                <div class="cam-loading-overlay" id="cam-loading-overlay">
+                  <div class="cam-loading-spinner"></div>
+                  <div class="cam-loading-text" id="cam-loading-text">Starting camera…</div>
+                  <div class="cam-loading-bar">
+                    <div class="cam-loading-bar-fill"></div>
+                  </div>
+                </div>
+
+                <!-- Camera error overlay: shown if the backend/socket fails to
+                     deliver a camera stream. -->
+                <div class="cam-error-overlay" id="cam-error-overlay">
+                  <div class="cam-error-text">Unable to access the camera. Please check your permissions and try again.</div>
+                  <button class="btn-cam-retry" id="cam-retry-btn" onclick="retryCamera()">Retry</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sentence Builder — nested inside Camera Feed card, not a
+                 separate card. Same #sentence-card id, same children, same
+                 IDs (#sentence-text, #speak-fill, etc.) as before; only its
+                 position in the DOM/layout changed. -->
+            <div class="sentence-card-nested" id="sentence-card">
+              <div class="card-body sentence-body">
+                <div class="sentence-display">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sentence-display-icon">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  </svg>
+                  <span class="sentence-display-label">Translated Text</span>
+                  <span id="sentence-text"></span>
+                  <span class="cursor-blink"></span>
+                  <button class="btn-clear-sentence" onclick="clearSentence()" title="Clear">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                    </svg>
+                    Clear
+                  </button>
+                </div>
+                <!-- Speak-hold progress + char count: hidden visually per
+                     layout, kept for JS (updateSentence() sets these
+                     unconditionally on every frame) -->
+                <div class="sentence-footer" style="display:none">
+                  <div class="speak-row">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="speak-icon">
+                      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                      <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                      <line x1="12" y1="19" x2="12" y2="23"/>
+                      <line x1="8"  y1="23" x2="16" y2="23"/>
+                    </svg>
+                    <span class="speak-hint" id="speak-label">Hold thumbs up to speak</span>
+                    <div class="speak-bar-bg"><div class="speak-bar-fill" id="speak-fill"></div></div>
+                  </div>
+                  <span class="char-count" id="char-count">0 / 500</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /col-left -->
+
+        <!-- ── RIGHT COLUMN: Recent History ── -->
+        <div class="col-right">
+
+          <!-- Recent History Card -->
+          <div class="card history-card">
+            <div class="card-header">
+              <div class="card-title">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                  <path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>
+                </svg>
+                Recent History
+              </div>
+              <button class="btn btn-sm view-all-btn" onclick="switchPage(document.querySelector('[data-page=history]'), 'history')">View All</button>
+            </div>
+            <div class="card-body history-body-wrap" id="history-body">
+              <div class="history-empty" id="history-empty">
+                <div class="history-empty-icon">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                  </svg>
+                </div>
+                <div class="history-empty-title">No history yet</div>
+                <div class="history-empty-sub">Your recent translations will appear here.</div>
+              </div>
+            </div>
+          </div><!-- /history-card -->
+
+        </div><!-- /col-right -->
+
+      </div><!-- /top-row -->
+
+      <!-- ── Bottom Action Bar ────────────────────────────── -->
+      <div class="controls-bar">
+        <div class="controls-group">
+          <button class="btn btn-start" onclick="startCamera()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Start Feed
+          </button>
+          <button class="btn btn-stop" onclick="stopCamera()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12"/></svg>
+            Stop
+          </button>
+          <button class="btn btn-speak" onclick="speakSentence()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+            </svg>
+            Speak
+          </button>
+        </div>
+        <!-- Hidden visually (empty bar removed per layout), kept for JS -->
+        <div class="sentence-preview" id="controls-sentence" style="display:none">—</div>
+      </div>
+
+    </div><!-- /page-dashboard -->
+
+    <!-- ══════════════════════════════════════════════════════
+         HISTORY PAGE (real, MySQL-backed)
+    ══════════════════════════════════════════════════════ -->
+    <div class="page-panel" id="page-history">
+      <div class="history-page">
+        <div class="history-toolbar">
+          <div class="history-search">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" id="history-search-input" placeholder="Search translation history..."
+                   oninput="searchSentenceHistoryLive(this.value)"
+                   onkeydown="if(event.key==='Enter') searchSentenceHistory()">
+          </div>
+          <button class="btn btn-sm" onclick="searchSentenceHistory()">Search</button>
+        </div>
+        <div class="history-table-wrap">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Translation</th>
+                <th>Date &amp; Time</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-body"></tbody>
+          </table>
+          <div class="history-page-empty" id="history-page-empty">No sentences yet. Sign something and hit Speak!</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         FAVORITES PAGE (real, MySQL-backed)
+    ══════════════════════════════════════════════════════ -->
+    <div class="page-panel" id="page-favorites">
+      <div class="history-page">
+        <div class="history-toolbar">
+          <span class="favorites-subtitle">Your starred sentences</span>
+        </div>
+        <div class="history-table-wrap">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Sentence</th>
+                <th>Date &amp; Time</th>
+                <th>Session</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="favorites-table-body"></tbody>
+          </table>
+          <div class="history-page-empty" id="favorites-page-empty">No favorites yet. Star a sentence from History to save it here.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         ANALYTICS PAGE (placeholder)
+    ══════════════════════════════════════════════════════ -->
+    <div class="page-panel" id="page-analytics">
+      <div class="placeholder-page">
+        <div class="placeholder-icon">📊</div>
+        <h2>Analytics</h2>
+        <p>Deeper usage analytics across sessions. Coming soon.</p>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         PROFILE PAGE (real, MySQL-backed)
+    ══════════════════════════════════════════════════════ -->
+    <div class="page-panel" id="page-profile">
+      <div class="profile-page">
+
+        <div class="profile-header">
+          <div class="profile-avatar-wrap">
+            <img class="profile-avatar hidden" id="profile-avatar" src="" alt="Profile picture">
+            <div class="profile-avatar-placeholder" id="profile-avatar-placeholder">👤</div>
+            <button class="profile-avatar-edit" title="Change picture" onclick="el('avatar-input').click()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+              </svg>
+            </button>
+            <input type="file" id="avatar-input" accept="image/png,image/jpeg,image/gif,image/webp"
+                   style="display:none" onchange="uploadAvatar(this.files[0])">
+          </div>
+          <div class="profile-identity">
+            <h2 id="profile-fullname-display">—</h2>
+            <span class="profile-username-display" id="profile-username-display">—</span>
+            <button class="profile-avatar-remove" id="profile-avatar-remove" onclick="removeAvatar()">Remove picture</button>
+          </div>
+        </div>
+
+        <div class="profile-rows">
+          <div class="profile-row"><span>Email</span><strong id="profile-email">—</strong></div>
+          <div class="profile-row"><span>Date Joined</span><strong id="profile-created">—</strong></div>
+          <div class="profile-row"><span>Last Active</span><strong id="profile-last-active">—</strong></div>
+        </div>
+
+        <div class="profile-section-label">Statistics</div>
+        <div class="profile-stats-grid">
+          <div class="stat-card"><div class="stat-val" id="pstat-sessions">—</div><div class="stat-label">Sessions</div></div>
+          <div class="stat-card"><div class="stat-val" id="pstat-sentences">—</div><div class="stat-label">Sentences</div></div>
+          <div class="stat-card"><div class="stat-val" id="pstat-favorites">—</div><div class="stat-label">Favorites</div></div>
+          <div class="stat-card"><div class="stat-val" id="pstat-avg-duration">—</div><div class="stat-label">Avg Duration</div></div>
+          <div class="stat-card"><div class="stat-val" id="pstat-letter">—</div><div class="stat-label">Most Used Letter</div></div>
+        </div>
+
+        <div class="profile-actions">
+          <button class="btn" onclick="openEditProfile()">Edit Profile</button>
+          <button class="btn" onclick="openChangePassword()">Change Password</button>
+          <button class="btn sidebar-logout" onclick="logout()">Logout</button>
+        </div>
+
+      </div>
+
+      <!-- Edit Profile modal -->
+      <div class="profile-modal-overlay" id="edit-profile-overlay">
+        <div class="profile-modal">
+          <div class="profile-modal-header">
+            <span>Edit Profile</span>
+            <button class="profile-modal-close" onclick="closeEditProfile()">✕</button>
+          </div>
+          <div class="auth-error" id="edit-profile-error"></div>
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" class="form-input" id="edit-fullname">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Username</label>
+            <input type="text" class="form-input" id="edit-username">
+          </div>
+          <button class="auth-submit" onclick="submitEditProfile()">Save Changes</button>
+        </div>
+      </div>
+
+      <!-- Change Password modal -->
+      <div class="profile-modal-overlay" id="change-password-overlay">
+        <div class="profile-modal">
+          <div class="profile-modal-header">
+            <span>Change Password</span>
+            <button class="profile-modal-close" onclick="closeChangePassword()">✕</button>
+          </div>
+          <div class="auth-error" id="change-password-error"></div>
+          <div class="form-group">
+            <label class="form-label">Current Password</label>
+            <input type="password" class="form-input" id="current-password">
+          </div>
+          <div class="form-group">
+            <label class="form-label">New Password</label>
+            <input type="password" class="form-input" id="new-password">
+          </div>
+          <button class="auth-submit" onclick="submitChangePassword()">Update Password</button>
+        </div>
+      </div>
+    </div><!-- /page-profile -->
+
+    <!-- ══════════════════════════════════════════════════════
+         SETTINGS PAGE (real, MySQL-backed)
+    ══════════════════════════════════════════════════════ -->
+    <div class="page-panel" id="page-settings">
+      <div class="stt-t2-wrapper">
+
+        <!-- Tab bar -->
+        <div class="stt-t2-tabbar">
+          <button class="stt-t2-tab active" data-stt-cat="speech" onclick="switchSettingsTab('speech')">AI &amp; Speech</button>
+          <button class="stt-t2-tab" data-stt-cat="camera" onclick="switchSettingsTab('camera')">Camera</button>
+          <button class="stt-t2-tab" data-stt-cat="prefs" onclick="switchSettingsTab('prefs')">Dashboard Preferences</button>
+        </div>
+
+        <!-- Tab panels -->
+        <div class="stt-t2-body">
+
+          <!-- ── AI & Speech ──────────────────────────────────── -->
+          <div class="stt-t2-panel active" id="stt-panel-speech">
+            <div class="stt-t2-section">
+              <div class="settings-row settings-row-stacked">
+                <div class="settings-row-label">
+                  <span>Speech Speed</span>
+                  <span class="settings-row-hint">How fast spoken sentences play back</span>
+                </div>
+                <div class="settings-slider-row">
+                  <input type="range" class="settings-slider" id="setting-speech-speed" min="0.5" max="2.0" step="0.1" value="1.0">
+                  <span class="settings-slider-val" id="setting-speech-speed-val">1.0x</span>
+                </div>
+              </div>
+              <div class="settings-row settings-row-stacked">
+                <div class="settings-row-label">
+                  <span>Speech Volume</span>
+                  <span class="settings-row-hint">Volume level for spoken sentences</span>
+                </div>
+                <div class="settings-slider-row">
+                  <input type="range" class="settings-slider" id="setting-speech-volume" min="0" max="100" step="1" value="100">
+                  <span class="settings-slider-val" id="setting-speech-volume-val">100</span>
+                </div>
+              </div>
+              <div class="settings-row">
+                <div class="settings-row-label">
+                  <span>Speech Voice</span>
+                  <span class="settings-row-hint">Which installed system voice speaks your sentences</span>
+                </div>
+                <select class="settings-select" id="setting-speech-voice">
+                  <option value="">System Default</option>
+                </select>
+              </div>
+            </div>
+            <div class="stt-t2-actions">
+              <button class="btn btn-start" onclick="saveSettingsCategory('speech')">Save Changes</button>
+              <button class="btn" onclick="resetSettingsCategory('speech')">Reset to Default</button>
+            </div>
+          </div>
+
+          <!-- ── Camera ───────────────────────────────────────── -->
+          <div class="stt-t2-panel" id="stt-panel-camera">
+            <div class="stt-t2-section">
+              <div class="settings-row">
+                <div class="settings-row-label">
+                  <span>Camera Size</span>
+                  <span class="settings-row-hint">Adjusts the camera feed size on the Translator</span>
+                </div>
+                <select class="settings-select" id="setting-camera-size">
+                  <option value="small">Small</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="large">Large</option>
+                </select>
+              </div>
+              <div class="settings-row">
+                <div class="settings-row-label">
+                  <span>Show Hand Landmarks</span>
+                  <span class="settings-row-hint">Display the skeleton overlay on the camera feed — AI tracking stays fully active</span>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="setting-show-landmarks" checked>
+                  <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                </label>
+              </div>
+            </div>
+            <div class="stt-t2-actions">
+              <button class="btn btn-start" onclick="saveSettingsCategory('camera')">Save Changes</button>
+              <button class="btn" onclick="resetSettingsCategory('camera')">Reset to Default</button>
+            </div>
+          </div>
+
+          <!-- ── Dashboard Preferences ────────────────────────── -->
+          <div class="stt-t2-panel" id="stt-panel-prefs">
+            <div class="stt-t2-section">
+              <div class="settings-row stt-theme-row">
+                <div class="settings-row-label">
+                  <span>Appearance</span>
+                  <span class="settings-row-hint">Choose how HandTalk AI looks on this device</span>
+                </div>
+                <div class="theme-radio-group" role="radiogroup" aria-label="Appearance">
+                  <label class="theme-radio-option">
+                    <input type="radio" name="setting-theme" id="setting-theme-light" value="light" onchange="stageThemeSelection('light')">
+                    <span>Light Mode</span>
+                  </label>
+                  <label class="theme-radio-option">
+                    <input type="radio" name="setting-theme" id="setting-theme-dark" value="dark" onchange="stageThemeSelection('dark')">
+                    <span>Dark Mode</span>
+                  </label>
+                </div>
+              </div>
+              <div class="settings-row">
+                <div class="settings-row-label">
+                  <span>Show Gesture Analytics</span>
+                  <span class="settings-row-hint">Show the Gesture Analytics card on the Translator</span>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="setting-show-analytics" checked>
+                  <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                </label>
+              </div>
+              <div class="settings-row">
+                <div class="settings-row-label">
+                  <span>Show Sentence History Panel</span>
+                  <span class="settings-row-hint">Show the recent-activity History card on the Translator</span>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="setting-show-history-panel" checked>
+                  <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                </label>
+              </div>
+            </div>
+            <div class="stt-t2-actions">
+              <button class="btn btn-start" onclick="saveSettingsCategory('prefs')">Save Changes</button>
+              <button class="btn" onclick="resetSettingsCategory('prefs')">Reset to Default</button>
+            </div>
+          </div>
+
+        </div><!-- /stt-t2-body -->
+
+      </div><!-- /stt-t2-wrapper -->
+    </div><!-- /page-settings -->
+
+    <!-- ══════════════════════════════════════════════════════════
+         OVERVIEW PAGE
+    ══════════════════════════════════════════════════════════ -->
+    <div class="page-panel active" id="page-overview">
+      <div class="overview-page">
+
+        <!-- Hero -->
+        <section class="ov-hero">
+          <div class="ov-hero-content">
+            <div class="ov-eyebrow">AI-Powered Sign Language Recognition</div>
+            <h1 class="ov-title">Welcome to<br><span class="ov-title-brand">HandTalk AI</span></h1>
+            <p class="ov-subtitle">Bridging Communication Through Sign Language Recognition</p>
+            <p class="ov-desc">
+              HandTalk AI is an AI-powered real-time sign language recognition system that translates
+              sign language gestures into text and speech, helping improve communication between
+              deaf or hard-of-hearing individuals and people who do not understand sign language.
+            </p>
+            <div class="ov-hero-actions">
+              <button class="btn btn-start ov-btn-lg" onclick="gotoPage('dashboard')">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+                Start Translating
+              </button>
+              <button class="btn ov-btn-lg" onclick="gotoPage('dictionary')">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+                Explore Dictionary
+              </button>
+            </div>
+          </div>
+
+          <div class="ov-hero-visual">
+            <div class="ov-illustration">
+              <svg class="ov-hand-svg" viewBox="0 0 160 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M56 110 L56 48 a10 10 0 0 1 20 0 L76 98"/>
+                  <path d="M76 96 L76 32 a10 10 0 0 1 20 0 L96 96"/>
+                  <path d="M96 96 L96 38 a10 10 0 0 1 20 0 L116 100"/>
+                  <path d="M116 100 L116 52 a9 9 0 0 1 18 0 L134 106"/>
+                  <path d="M56 108 L38 78 a9 9 0 0 1 16-10 L68 102"/>
+                  <path d="M50 130 q-5 50 26 68 q30 20 62 5 q28-12 30-46 l2-55 q0-12-12-12 q-11 0-11 12 l-1 32"/>
+                </g>
+                <g fill="currentColor" opacity=".55">
+                  <circle cx="56" cy="48" r="4"/><circle cx="76" cy="32" r="4"/>
+                  <circle cx="96" cy="38" r="4"/><circle cx="116" cy="52" r="4"/>
+                  <circle cx="38" cy="78" r="4"/>
+                </g>
+              </svg>
+              <div class="ov-chip">
+                <span class="ov-chip-dot"></span> Recognizing gesture…
+              </div>
+              <div class="ov-chip" style="background:var(--primary-soft);border-color:rgba(119,36,253,.2);color:var(--primary);">
+                98% confidence
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Recognition Tips -->
+        <section>
+          <div class="ov-section-header">
+            <div class="ov-section-label">Best Practices</div>
+            <h2 class="ov-section-title">Recognition Tips</h2>
+            <p class="ov-section-sub">Follow these tips for the best gesture recognition accuracy</p>
+          </div>
+          <div class="ov-tips-grid">
+            <div class="ov-tip">
+              <div class="ov-tip-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+              </div>
+              <div>
+                <div class="ov-tip-title">Ensure Good Lighting</div>
+                <div class="ov-tip-desc">Use a well-lit environment so the camera can clearly see the outline of your hand. Avoid strong backlighting or shadows that hide finger positions.</div>
+              </div>
+            </div>
+            <div class="ov-tip">
+              <div class="ov-tip-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              </div>
+              <div>
+                <div class="ov-tip-title">Stay Within the Frame</div>
+                <div class="ov-tip-desc">Keep your entire hand — from wrist to fingertips — visible inside the camera frame throughout the gesture for reliable tracking.</div>
+              </div>
+            </div>
+            <div class="ov-tip">
+              <div class="ov-tip-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              </div>
+              <div>
+                <div class="ov-tip-title">Perform Gestures Steadily</div>
+                <div class="ov-tip-desc">Hold each gesture clearly and steadily for at least half a second. Quick or shaky movements can be misread as a different letter.</div>
+              </div>
+            </div>
+            <div class="ov-tip">
+              <div class="ov-tip-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+              </div>
+              <div>
+                <div class="ov-tip-title">Avoid Cluttered Backgrounds</div>
+                <div class="ov-tip-desc">Use a plain or simple background so the model can focus on your hand instead of competing shapes and colors behind it.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div><!-- /page-overview -->
+
+    <!-- ══════════════════════════════════════════════════════════
+         DICTIONARY PAGE
+    ══════════════════════════════════════════════════════════ -->
+    <div class="page-panel" id="page-dictionary">
+      <div class="dict-wrap">
+
+        <!-- ── MAIN VIEW: Discover + category grid ── -->
+        <div class="dictv-main" id="dictv-main">
+          <div class="dictv-inner">
+            <h1 class="dictv-discover">Discover</h1>
+
+            <div class="dictv-search-wrap">
+              <svg class="dictv-search-ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input id="dictv-search" type="text" placeholder="Search signs..." oninput="dictMainSearch(this.value)">
+            </div>
+
+            <!-- Category grid -->
+            <div id="dictv-grid-section">
+              <div class="dictv-cat-label-main">Categories</div>
+              <div class="dictv-grid">
+
+                <div class="dictv-card" onclick="openDictCat('alpha')">
+                  <div class="dictv-card-icon-wrap" style="background:#FFF0E0;">
+                    <span style="color:#F07300;font-size:30px;font-weight:800;font-family:Georgia,serif;line-height:1;">A</span>
+                  </div>
+                  <div class="dictv-card-name">Alphabets</div>
+                  <div class="dictv-card-desc">26 signs</div>
+                </div>
+
+                <div class="dictv-card" onclick="openDictCat('numbers')">
+                  <div class="dictv-card-icon-wrap" style="background:#E2F5F5;">
+                    <div style="text-align:center;line-height:1;color:#2BA8A8;">
+                      <div style="font-size:13px;font-weight:800;letter-spacing:-1px;">1&nbsp;&nbsp;2</div>
+                      <div style="font-size:11px;font-weight:700;margin-top:4px;">3</div>
+                    </div>
+                  </div>
+                  <div class="dictv-card-name">Numbers</div>
+                  <div class="dictv-card-desc">10 signs</div>
+                </div>
+
+                <div class="dictv-card" onclick="openDictCat('words')">
+                  <div class="dictv-card-icon-wrap" style="background:#FFF0E0;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="#F07300"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                  </div>
+                  <div class="dictv-card-name">Common Words</div>
+                  <div class="dictv-card-desc">Some common signs</div>
+                </div>
+
+                <div class="dictv-card" onclick="openDictCat('space')">
+                  <div class="dictv-card-icon-wrap" style="background:#F3F3F3;">
+                    <svg width="32" height="12" viewBox="0 0 32 12"><rect x="2" y="4.5" width="28" height="3" rx="1.5" fill="#9CA3AF"/></svg>
+                  </div>
+                  <div class="dictv-card-name">Space</div>
+                  <div class="dictv-card-desc">Represents spacing between words</div>
+                </div>
+
+                <div class="dictv-card" onclick="openDictCat('speak')">
+                  <div class="dictv-card-icon-wrap" style="background:#FFF0E0;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F07300" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                  </div>
+                  <div class="dictv-card-name">Speak</div>
+                  <div class="dictv-card-desc">Used to convert text to speech</div>
+                </div>
+
+                <div class="dictv-card" onclick="openDictCat('delete')">
+                  <div class="dictv-card-icon-wrap" style="background:#FFF0F0;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>
+                  </div>
+                  <div class="dictv-card-name">Delete</div>
+                  <div class="dictv-card-desc">Removes the last character or word</div>
+                </div>
+
+              </div>
+            </div><!-- /dictv-grid-section -->
+
+            <!-- Search results (visible while typing) -->
+            <div id="dictv-results-section" style="display:none">
+              <div class="dictv-results-label">Results</div>
+              <div id="dictv-results-list"></div>
+            </div>
+
+          </div>
+        </div><!-- /dictv-main -->
+
+        <!-- ── CATEGORY VIEW: list ── -->
+        <div class="dictv-cat" id="dictv-cat">
+          <!-- Sticky top bar -->
+          <div class="dictv-cat-bar">
+            <button class="dictv-back-btn" onclick="closeDictCat()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <span class="dictv-cat-title-bar" id="dictv-cat-title-bar">ALPHABETS</span>
+            <button class="dictv-cat-search-btn" id="dictv-cat-search-btn" onclick="dictToggleCatSearch()" aria-label="Search">
+              <svg class="dictv-cat-search-btn-icon dictv-cat-search-btn-icon--search" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <svg class="dictv-cat-search-btn-icon dictv-cat-search-btn-icon--close" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <!-- Inline search (toggled by search icon) -->
+          <div class="dictv-cat-search-bar" id="dictv-cat-search-bar">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B09480" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input id="dictv-cat-search" type="text" placeholder="Search signs..." oninput="dictCatSearch(this.value)">
+          </div>
+          <!-- Scrollable list — populated by openDictCat() -->
+          <div class="dictv-list-wrap" id="dictv-list-wrap"></div>
+        </div><!-- /dictv-cat -->
+
+      </div><!-- /dict-wrap -->
+
+      <!-- ── SIGN PREVIEW MODAL — populated by openDictPreview() ── -->
+      <div class="dictv-preview-overlay" id="dictv-preview-overlay" onclick="if(event.target===this) closeDictPreview()">
+        <div class="dictv-preview-modal">
+          <div class="dictv-preview-header">
+            <span></span>
+            <span class="dictv-preview-title" id="dictv-preview-title">A</span>
+            <button class="dictv-preview-close" onclick="closeDictPreview()">
+              <span>✕</span> Close
+            </button>
+          </div>
+
+          <div class="dictv-preview-media" id="dictv-preview-media"></div>
+
+          <div class="dictv-preview-nav">
+            <button class="dictv-preview-nav-btn" id="dictv-preview-prev" onclick="dictPreviewNav(-1)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+              Previous
+            </button>
+            <span class="dictv-preview-current" id="dictv-preview-current">A</span>
+            <button class="dictv-preview-nav-btn" id="dictv-preview-next" onclick="dictPreviewNav(1)">
+              Next
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+        </div>
+      </div><!-- /dictv-preview-overlay -->
+
+    </div><!-- /page-dictionary -->
+
+    <!-- ══════════════════════════════════════════════════════════
+         CUSTOMER SUPPORT PAGE
+    ══════════════════════════════════════════════════════════ -->
+    <div class="page-panel" id="page-support">
+      <div class="support-page">
+
+        <!-- Quick Help -->
+        <div class="card support-card">
+          <div class="card-header">
+            <div class="card-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+              Quick Help
+            </div>
+          </div>
+          <div class="card-body" style="padding:16px;">
+            <p class="support-section-desc">Common issues and how to fix them — click any question to expand.</p>
+            <div class="accordion">
+
+              <div class="accordion-item">
+                <button class="accordion-btn" onclick="toggleAccordion(this)">
+                  Camera not working?
+                  <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="accordion-body">
+                  <div class="accordion-body-inner">
+                    <ul>
+                      <li>Make sure your browser has camera permission granted. Look for the camera icon in the address bar.</li>
+                      <li>Close any other apps that might be using the camera (Zoom, Teams, Camera app, etc.).</li>
+                      <li>Try refreshing the page, then click <strong>Start Feed</strong> again.</li>
+                      <li>If using Windows, check <em>Privacy &amp; Security → Camera</em> in Settings to confirm browser access is allowed.</li>
+                      <li>Try a different browser (Chrome or Edge are recommended).</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item">
+                <button class="accordion-btn" onclick="toggleAccordion(this)">
+                  Gesture not detected?
+                  <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="accordion-body">
+                  <div class="accordion-body-inner">
+                    <ul>
+                      <li>Ensure there is enough light on your hand — natural or desk lighting works best.</li>
+                      <li>Keep your full hand clearly inside the camera frame.</li>
+                      <li>Hold each gesture steady for at least half a second before moving on.</li>
+                      <li>Avoid wearing gloves or accessories that cover your fingers.</li>
+                      <li>Try a plain, uncluttered background to help the model focus on your hand.</li>
+                      <li>Check the Gesture Dictionary to confirm you are performing the correct hand shape.</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item">
+                <button class="accordion-btn" onclick="toggleAccordion(this)">
+                  Voice output not working?
+                  <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="accordion-body">
+                  <div class="accordion-body-inner">
+                    <ul>
+                      <li>Check that your system volume is not muted and is turned up.</li>
+                      <li>Make sure no browser permission is blocking audio output.</li>
+                      <li>Try clicking the <strong>Speak</strong> button manually in the Translator page.</li>
+                      <li>Some browsers restrict auto-play audio — interact with the page first (click anywhere) and try again.</li>
+                      <li>If using the SPEAK gesture, hold the thumbs-up gesture for the full 1.5 seconds until the progress bar completes.</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item">
+                <button class="accordion-btn" onclick="toggleAccordion(this)">
+                  Letters are being added too fast or too slow?
+                  <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="accordion-body">
+                  <div class="accordion-body-inner">
+                    A letter is added after the same gesture is held for <strong>20 consecutive frames</strong>. To add a letter faster, hold the gesture more steadily without moving between frames. To slow down, briefly relax your hand between gestures.
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Feedback -->
+        <div class="card support-card">
+          <div class="card-header">
+            <div class="card-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+              Feedback
+            </div>
+          </div>
+          <div class="card-body" style="padding:16px;">
+            <p class="support-section-desc">Help us improve HandTalk AI by sharing your experience.</p>
+            <div class="support-feedback-row">
+              <button class="support-feedback-btn" onclick="openReportIssue()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Report an Issue
+              </button>
+              <button class="support-feedback-btn" onclick="openSendFeedback()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Send Feedback
+              </button>
+            </div>
+
+            <div class="support-rating" id="support-rating">
+              <span class="support-rating-label">Rate gesture accuracy:</span>
+              <button class="rating-star" data-star="1" onclick="rateAccuracy(1)" title="1 star">★</button>
+              <button class="rating-star" data-star="2" onclick="rateAccuracy(2)" title="2 stars">★</button>
+              <button class="rating-star" data-star="3" onclick="rateAccuracy(3)" title="3 stars">★</button>
+              <button class="rating-star" data-star="4" onclick="rateAccuracy(4)" title="4 stars">★</button>
+              <button class="rating-star" data-star="5" onclick="rateAccuracy(5)" title="5 stars">★</button>
+            </div>
+            <p id="rating-thanks" style="font-size:13px;color:var(--green);margin-top:8px;display:none;">
+              Thank you for your rating!
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Report an Issue modal -->
+      <div class="profile-modal-overlay" id="report-issue-overlay">
+        <div class="profile-modal">
+          <div class="profile-modal-header">
+            <span>Report an Issue</span>
+            <button class="profile-modal-close" onclick="closeReportIssue()">✕</button>
+          </div>
+          <div class="auth-error" id="report-issue-error"></div>
+          <div class="form-group">
+            <label class="form-label">Issue Title</label>
+            <input type="text" class="form-input" id="report-issue-title">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea class="form-input" id="report-issue-description" rows="4" style="resize:vertical;"></textarea>
+          </div>
+          <button class="auth-submit" onclick="submitReportIssue()">Submit Report</button>
+        </div>
+      </div>
+
+      <!-- Send Feedback modal -->
+      <div class="profile-modal-overlay" id="send-feedback-overlay">
+        <div class="profile-modal">
+          <div class="profile-modal-header">
+            <span>Send Feedback</span>
+            <button class="profile-modal-close" onclick="closeSendFeedback()">✕</button>
+          </div>
+          <div class="auth-error" id="send-feedback-error"></div>
+          <div class="form-group">
+            <label class="form-label">Your Comments</label>
+            <textarea class="form-input" id="send-feedback-message" rows="4" style="resize:vertical;"></textarea>
+          </div>
+          <button class="auth-submit" onclick="submitSendFeedback()">Submit Feedback</button>
+        </div>
+      </div>
+    </div><!-- /page-support -->
+
+  </div><!-- /content-wrapper -->
+</div><!-- /layout -->
+
+<!-- Toast notification -->
+<div class="toast" id="toast">
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+  </svg>
+  <span id="toast-text"></span>
+</div>
+
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script src="app.js"></script>
+
+<!-- Mirror conf-fill (app.js's hidden confidence bar) → mini-conf-fill,
+     the confidence bar that's actually visible on the Translator page. -->
+<script>
+  (function() {
+    const confFill     = document.getElementById('conf-fill');
+    const miniConfFill = document.getElementById('mini-conf-fill');
+    if (!confFill || !miniConfFill) return;
+    const confObs = new MutationObserver(() => {
+      miniConfFill.style.width = confFill.style.width;
+      miniConfFill.className = 'mini-conf-fill' + (confFill.className.includes('mid') ? ' mid' : confFill.className.includes('low') ? ' low' : '');
+    });
+    confObs.observe(confFill, { attributes: true, attributeFilter: ['style', 'class'] });
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,1650 @@
+/* ════════════════════════════════════════════════════════════════
+   dashboard/landing.css
+   Styles for the public landing page (landing.html) only.
+
+   Loaded ALONGSIDE style.css (not instead of it) - landing.html
+   links both, in this order:
+     <link rel="stylesheet" href="style.css">
+     <link rel="stylesheet" href="landing.css">
+
+   This file only defines NEW lp-/landing- prefixed classes and
+   never redeclares anything from style.css. The page now uses the
+   same warm cream/orange design system as the Dashboard shell
+   (see the --app-bg/--orange/--border/--warm-card-shadow tokens in
+   style.css's :root) instead of its previous dark glassmorphism
+   look - only the color/background/shadow values below changed,
+   every selector, layout rule, media query, and animation is
+   unchanged from before.
+   ════════════════════════════════════════════════════════════════ */
+
+   .landing-body {
+    height: auto;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    font-family: 'Plus Jakarta Sans', 'Manrope', 'Poppins', 'Outfit', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  :root {
+    /* Warm accent system, scoped to the landing page - layered on
+       top of style.css's base tokens, reusing the Dashboard's
+       orange accent instead of the old purple/blue one. */
+    --lp-accent:       var(--orange);      /* #F07300 */
+    --lp-accent-light: #FFA94D;            /* gradient partner, matches the Dashboard's confidence-bar gradient */
+    --lp-bg:           var(--app-bg);      /* #FFF8F2 warm cream */
+    --lp-bg-alt:       #FFF3E8;            /* slightly deeper cream for alternating sections */
+    --lp-card-bg:      #FFFFFF;
+    --lp-card-border:  var(--border);      /* #EDE0D4 */
+    --lp-card-border-hover: rgba(240,115,0,0.35);
+  }
+
+  /* ── Decorative mesh / dot background (purely visual, behind content) ─ */
+  .lp-mesh {
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(240,115,0,0.14) 1px, transparent 0);
+    background-size: 28px 28px;
+    -webkit-mask-image: radial-gradient(ellipse 65% 55% at 72% 35%, #000 0%, transparent 75%);
+    mask-image: radial-gradient(ellipse 65% 55% at 72% 35%, #000 0%, transparent 75%);
+    pointer-events: none;
+  }
+
+  /* ── Nav ──────────────────────────────────────────────────────── */
+  .lp-nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: transparent;
+    border-bottom: 1px solid transparent;
+    transition: background 0.25s ease, border-color 0.25s ease, backdrop-filter 0.25s ease;
+  }
+
+  .lp-nav.lp-nav-scrolled {
+    background: rgba(255,248,242,0.85);
+    backdrop-filter: blur(16px) saturate(140%);
+    border-bottom: 1px solid var(--lp-card-border);
+  }
+
+  .lp-nav-inner {
+    position: relative;
+    max-width: 1180px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px;
+  }
+
+  .lp-brand {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-weight: 700;
+    font-size: 19px;
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .lp-brand-hand { color: var(--lp-accent); }
+  .lp-brand-ai   { color: #DC2626; }
+
+  .lp-brand-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px; height: 32px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--lp-accent), var(--lp-accent-light));
+    color: #fff;
+    border: 1px solid rgba(240,115,0,0.4);
+    box-shadow: 0 4px 14px rgba(240,115,0,0.35);
+  }
+
+  .lp-links {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    gap: 36px;
+  }
+
+  .lp-links a {
+    position: relative;
+    color: var(--text2);
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 4px 2px 10px;
+    transition: color 0.15s ease;
+  }
+
+  .lp-links a:hover { color: var(--lp-accent); }
+
+  .lp-links a.lp-active { color: var(--text); }
+
+  /* Single sliding indicator, repositioned by landing.js (offsetLeft/
+     offsetWidth of the active link) instead of a per-link ::after -
+     this is what makes it glide smoothly between nav items rather
+     than snapping on/off. */
+  .lp-nav-indicator {
+    position: absolute;
+    left: 0; bottom: 0;
+    width: 0;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--lp-accent);
+    opacity: 0;
+    transition: left 0.32s cubic-bezier(0.65, 0, 0.35, 1),
+                width 0.32s cubic-bezier(0.65, 0, 0.35, 1),
+                opacity 0.2s ease;
+    pointer-events: none;
+  }
+
+  .lp-nav-actions { display: flex; align-items: center; gap: 10px; }
+
+  .lp-nav-actions .btn,
+  .lp-mobile-actions .btn {
+    border-radius: 12px;
+  }
+
+  .lp-nav-actions .btn-start,
+  .lp-mobile-actions .btn-start {
+    background: linear-gradient(135deg, var(--lp-accent), var(--lp-accent-light));
+    border-color: transparent;
+    box-shadow: 0 4px 18px -4px rgba(240,115,0,0.5);
+  }
+
+  .lp-nav-actions .btn-start:hover,
+  .lp-mobile-actions .btn-start:hover {
+    background: linear-gradient(135deg, var(--lp-accent-light), var(--lp-accent));
+    box-shadow: 0 6px 22px -4px rgba(240,115,0,0.6);
+  }
+
+  .lp-burger {
+    display: none;
+    background: var(--surface2);
+    border: 1px solid var(--lp-card-border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    padding: 7px;
+    cursor: pointer;
+  }
+
+  .lp-mobile-menu {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 24px 18px;
+    background: rgba(255,248,242,0.98);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--lp-card-border);
+  }
+
+  .lp-mobile-menu.show { display: flex; }
+
+  .lp-mobile-menu a {
+    color: var(--text2);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 4px;
+    border-bottom: 1px solid var(--lp-card-border);
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .lp-mobile-menu a.lp-active {
+    color: var(--text);
+    font-weight: 700;
+    border-bottom-color: var(--lp-accent);
+  }
+
+  .lp-mobile-actions {
+    display: flex;
+    gap: 8px;
+    padding-top: 10px;
+  }
+
+  @media (max-width: 860px) {
+    .lp-links, .lp-nav-actions { display: none; }
+    .lp-burger { display: flex; }
+  }
+
+  /* ── Type hierarchy: geometric sans weights + readability tuning ── */
+  .landing-body .btn {
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+
+  .lp-p, .lp-desc, .lp-feature-desc, .lp-step-desc,
+  .lp-modal-message, .lp-modal-submessage {
+    font-weight: 450;
+    letter-spacing: 0.005em;
+  }
+
+  /* ── Shared section scaffolding ──────────────────────────────────── */
+  .lp-section { padding: 156px 24px; position: relative; background: var(--lp-bg); }
+  .lp-section-alt { background: var(--lp-bg-alt); }
+  .lp-section-inner { max-width: 1140px; margin: 0 auto; position: relative; z-index: 1; }
+  .lp-center { text-align: center; }
+  .lp-center-flex { justify-content: center; }
+
+  .lp-kicker {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: var(--lp-accent);
+    margin-bottom: 16px;
+  }
+
+  /* Centered kicker label flanked by two equal-length thin lines,
+     e.g. "──── FEATURES ────". Reusable for any section heading -
+     just wrap a .lp-kicker in this row instead of hardcoding
+     per-section positioning. */
+  .lp-kicker-flanked {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .lp-kicker-flanked .lp-kicker {
+    margin-bottom: 0;
+    white-space: nowrap;
+  }
+
+  .lp-kicker-line {
+    flex: 0 0 56px;
+    height: 1.5px;
+    border-radius: 1px;
+    background: var(--lp-accent);
+    opacity: 0.4;
+  }
+
+  /* Left-aligned variant for kickers sitting in a narrower text column
+     (e.g. About us) where the whole label should hug the left edge
+     instead of centering across the full section width. */
+  .lp-kicker-flanked-left {
+    display: inline-flex;
+    justify-content: flex-start;
+  }
+
+  @media (max-width: 480px) {
+    .lp-kicker-line { flex-basis: 32px; }
+  }
+
+  .lp-h2 {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.3;
+    margin-bottom: 22px;
+    letter-spacing: -0.01em;
+  }
+
+  .lp-p {
+    font-size: 16px;
+    color: var(--text2);
+    line-height: 1.8;
+    margin-bottom: 18px;
+    max-width: 620px;
+  }
+
+  .lp-center.lp-p, .lp-cta-inner .lp-p { margin-left: auto; margin-right: auto; }
+
+  /* ── Card base, layered on top of .card from style.css ─────────── */
+  .lp-section .card {
+    background: var(--lp-card-bg);
+    border: 1px solid var(--lp-card-border);
+    border-radius: 18px;
+    box-shadow: var(--warm-card-shadow);
+  }
+
+  /* ── Hero ─────────────────────────────────────────────────────── */
+  .lp-hero {
+    position: relative;
+    padding: 204px 24px 168px;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse 60% 50% at 80% 8%, rgba(240,115,0,0.14), transparent 60%),
+      radial-gradient(ellipse 50% 45% at 5% 95%, rgba(255,169,77,0.16), transparent 60%),
+      var(--lp-bg);
+  }
+
+  @keyframes lp-fade-in-down {
+    from { opacity: 0; transform: translateY(-26px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes lp-fade-in-left {
+    from { opacity: 0; transform: translateX(-26px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes lp-fade-in-right {
+    from { opacity: 0; transform: translateX(26px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  /* ── Hero entrance sequence (fires once on page load, not on
+     scroll) ─────────────────────────────────────────────────────
+     Each element starts hidden via opacity:0 below (so there's no
+     flash-of-unstyled-content before JS adds the trigger class) and
+     is revealed when landing.js adds .lp-enter-play to <body>
+     shortly after load. Slow = 1s, normal = 0.6s, matching the
+     brief's "slow" vs "normal speed" language. */
+  .lp-hero-eyebrow,
+  .lp-hero-title,
+  .lp-hero-subtitle,
+  .lp-hero-desc,
+  .lp-hero-btn-left,
+  .lp-hero-btn-right {
+    opacity: 0;
+  }
+
+  .lp-enter-play .lp-hero-eyebrow {
+    animation: lp-fade-in-down 1s ease-out forwards;
+    animation-delay: 0.05s;
+  }
+
+  .lp-enter-play .lp-hero-title {
+    animation: lp-fade-in-down 1s ease-out forwards;
+    animation-delay: 0.15s;
+  }
+
+  .lp-enter-play .lp-hero-subtitle {
+    animation: lp-fade-in-down 1s ease-out forwards;
+    animation-delay: 0.3s;
+  }
+
+  .lp-enter-play .lp-hero-desc {
+    animation: lp-fade-in-down 1s ease-out forwards;
+    animation-delay: 0.42s;
+  }
+
+  .lp-enter-play .lp-hero-btn-left {
+    animation: lp-fade-in-left 0.6s ease-out forwards;
+    animation-delay: 0.58s;
+  }
+
+  .lp-enter-play .lp-hero-btn-right {
+    animation: lp-fade-in-right 0.6s ease-out forwards;
+    animation-delay: 0.66s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lp-hero-eyebrow, .lp-hero-title, .lp-hero-subtitle, .lp-hero-desc,
+    .lp-hero-btn-left, .lp-hero-btn-right {
+      opacity: 1 !important;
+      animation: none !important;
+    }
+  }
+
+  /* No-JS / JS-failure safety net: if landing.js never adds
+     .lp-enter-play to <body> (e.g. blocked script), these elements
+     must not stay invisible forever. Scoped to :not(.lp-enter-play)
+     so it's a true no-op once JS succeeds - no flicker, since the
+     two rules never apply to the same state at once. */
+  body:not(.lp-enter-play) .lp-hero-eyebrow,
+  body:not(.lp-enter-play) .lp-hero-title,
+  body:not(.lp-enter-play) .lp-hero-subtitle,
+  body:not(.lp-enter-play) .lp-hero-desc,
+  body:not(.lp-enter-play) .lp-hero-btn-left,
+  body:not(.lp-enter-play) .lp-hero-btn-right {
+    animation: lp-fade-in-down 0.4s 2.5s ease-out forwards;
+  }
+
+  .lp-hero-inner {
+    max-width: 1140px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 64px;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .lp-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    border: none;
+    color: var(--text2);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    margin-bottom: 32px;
+  }
+
+  .lp-eyebrow-leaf {
+    color: var(--lp-accent-light);
+    opacity: 0.8;
+    flex-shrink: 0;
+  }
+
+  .lp-title {
+    font-size: 72px;
+    font-weight: 800;
+    line-height: 1.05;
+    color: var(--text);
+    margin-bottom: 22px;
+    letter-spacing: -0.02em;
+  }
+
+  .lp-subtitle {
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--text2);
+    margin-bottom: 22px;
+  }
+
+  .lp-desc {
+    font-size: 16px;
+    color: var(--text2);
+    line-height: 1.8;
+    max-width: 480px;
+    margin-bottom: 40px;
+  }
+
+  .lp-hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+
+  .lp-btn-lg {
+    padding: 15px 26px;
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    border-radius: 14px;
+  }
+
+  .lp-hero-actions .btn-start {
+    background: linear-gradient(135deg, var(--lp-accent), var(--lp-accent-light));
+    border-color: transparent;
+    box-shadow: 0 8px 28px -6px rgba(240,115,0,0.5);
+  }
+
+  .lp-hero-actions .btn-start:hover {
+    background: linear-gradient(135deg, var(--lp-accent-light), var(--lp-accent));
+    box-shadow: 0 10px 32px -6px rgba(240,115,0,0.65);
+    transform: translateY(-1px);
+  }
+
+  .lp-btn-outline {
+    background: #fff;
+    color: var(--lp-accent);
+    border: 1.5px solid var(--lp-accent);
+  }
+
+  .lp-btn-outline:hover {
+    background: var(--orange-light);
+    border-color: var(--lp-accent);
+  }
+
+  .lp-btn-outline svg {
+    color: var(--lp-accent);
+  }
+
+  /* Hero visual */
+  .lp-hero-visual {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+
+  /* Soft irregular blob backdrop behind the mascot - pure CSS via an
+     asymmetric border-radius, no SVG needed. Sits above the pulse
+     ring (::before) but below the mascot/cards. */
+  .lp-mascot-blob {
+    position: absolute;
+    z-index: 0;
+    width: 88%;
+    max-width: 420px;
+    aspect-ratio: 1 / 1;
+    background:
+      radial-gradient(circle at 35% 30%, rgba(255,215,150,0.55), transparent 60%),
+      linear-gradient(160deg, rgba(255,169,77,0.28), rgba(240,115,0,0.12));
+    border-radius: 42% 58% 65% 35% / 45% 45% 55% 55%;
+    animation: lp-blob-morph 12s ease-in-out infinite;
+  }
+
+  @keyframes lp-blob-morph {
+    0%, 100% { border-radius: 42% 58% 65% 35% / 45% 45% 55% 55%; }
+    50%      { border-radius: 58% 42% 40% 60% / 55% 60% 40% 45%; }
+  }
+
+  .lp-mascot {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 280px;
+  }
+
+  .lp-mascot-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    filter: drop-shadow(0 20px 40px rgba(120,50,0,0.22));
+  }
+
+  @keyframes lp-hand-float {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-10px); }
+  }
+
+  .lp-hand-float {
+    animation: lp-hand-float 5s ease-in-out infinite;
+  }
+
+  /* MediaPipe-style 21-point hand landmark overlay on the mascot -
+     thin blue lines + small semi-transparent joints, kept lightweight
+     so it reads as a live scan rather than a technical diagram. */
+  .lp-mp-lines line {
+    stroke: #7FD4FF;
+    stroke-width: 1.1;
+    stroke-linecap: round;
+    opacity: 0.55;
+  }
+
+  .lp-mp-dots circle {
+    fill: #3AA0FF;
+    stroke: #fff;
+    stroke-width: 1;
+    opacity: 0.8;
+    animation: lp-mp-pulse 4.5s ease-in-out infinite;
+  }
+
+  @keyframes lp-mp-pulse {
+    0%, 100% { opacity: 0.65; }
+    50%      { opacity: 0.95; }
+  }
+
+  @keyframes lp-badge-breathe {
+    0%, 100% { transform: scale(1); box-shadow: 0 1px 0 rgba(0,0,0,0); }
+    50%      { transform: scale(1.035); }
+  }
+
+  .lp-hand-badge {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 16px;
+    border-radius: 99px;
+    background: rgba(240,115,0,0.1);
+    border: 1px solid rgba(240,115,0,0.25);
+    color: var(--lp-accent);
+    font-size: 12px;
+    font-weight: 600;
+    width: fit-content;
+    margin: 14px auto 0;
+    animation: lp-badge-breathe 6s ease-in-out infinite;
+  }
+
+  /* Floating square (1:1) image-placeholder cards - editable via the
+     <img src> in landing.html. If the file 404s, the inline onerror
+     handler adds .lp-float-card-empty so this frame renders instead
+     of the browser's broken-image icon.
+
+     Continuous 8s loop per card, as if the mascot's raised hand is
+     sending each gesture example out into the air: the three cards
+     arc in one after another (250ms stagger), hover with a light
+     independent float once all three are out, then fade back out in
+     reverse order and the whole thing repeats. Each card is a single
+     self-contained @keyframes (lp-card-loop-1/2/3) rather than the
+     old play-once entrance + separate infinite float, so the visible
+     -> hidden -> visible cycle cannot fall out of sync with itself.
+     Each card supplies its own emergence vector via --lp-enter-x/y/rot,
+     set alongside its top/left/right position below - those vectors
+     already point back toward the mascot's raised hand, so all three
+     visibly converge from that one spot every loop. */
+  .lp-float-card {
+    position: absolute;
+    z-index: 2;
+    width: 104px;
+    aspect-ratio: 1 / 1;
+    background: var(--lp-card-bg);
+    border: 4px solid #fff;
+    border-radius: 50%;
+    overflow: hidden;
+    opacity: 0;
+    box-shadow: 0 12px 28px -10px rgba(17,24,39,0.22), 0 0 0 1px var(--lp-card-border), 0 0 16px -4px rgba(240,115,0,0.22);
+  }
+
+  /* Card 1: arcs in first (0-5%), settles, fades out last (55-60%). */
+  @keyframes lp-card-loop-1 {
+    0%, 100% {
+      opacity: 0;
+      transform: translate(var(--lp-enter-x), var(--lp-enter-y)) scale(0.6) rotate(var(--lp-enter-rot));
+    }
+    5%   { opacity: 1; transform: translate(0, 0) scale(1) rotate(0deg); }
+    18%  { transform: translate(0, -5px) scale(1) rotate(1.5deg); }
+    31%  { transform: translate(-2px, 0) scale(1) rotate(-1.5deg); }
+    44%  { transform: translate(2px, -4px) scale(1) rotate(1deg); }
+    55%  { opacity: 1; transform: translate(0, 0) scale(1) rotate(0deg); }
+    60%  { opacity: 0; transform: translate(0, -14px) scale(0.82) rotate(-5deg); }
+  }
+
+  /* Card 2: arcs in second (3-8%), fades out second (52-57%). */
+  @keyframes lp-card-loop-2 {
+    0%, 3%, 100% {
+      opacity: 0;
+      transform: translate(var(--lp-enter-x), var(--lp-enter-y)) scale(0.6) rotate(var(--lp-enter-rot));
+    }
+    8%   { opacity: 1; transform: translate(0, 0) scale(1) rotate(0deg); }
+    20%  { transform: translate(2px, -4px) scale(1) rotate(-1.5deg); }
+    33%  { transform: translate(0, 0) scale(1) rotate(1.5deg); }
+    46%  { transform: translate(-2px, -5px) scale(1) rotate(-1deg); }
+    52%  { opacity: 1; transform: translate(0, 0) scale(1) rotate(0deg); }
+    57%  { opacity: 0; transform: translate(0, -14px) scale(0.82) rotate(5deg); }
+  }
+
+  /* Card 3: arcs in last (6-11%), fades out first (49-54%). */
+  @keyframes lp-card-loop-3 {
+    0%, 6%, 100% {
+      opacity: 0;
+      transform: translate(var(--lp-enter-x), var(--lp-enter-y)) scale(0.6) rotate(var(--lp-enter-rot));
+    }
+    11%  { opacity: 1; transform: translate(0, 0) scale(1) rotate(0deg); }
+    22%  { transform: translate(-2px, -5px) scale(1) rotate(1.5deg); }
+    35%  { transform: translate(2px, 0) scale(1) rotate(-1.5deg); }
+    43%  { transform: translate(0, -4px) scale(1) rotate(1deg); }
+    49%  { opacity: 1; transform: translate(0, 0) scale(1) rotate(0deg); }
+    54%  { opacity: 0; transform: translate(0, -14px) scale(0.82) rotate(-5deg); }
+  }
+
+  /* Subtle AI-glow pulse layered onto the idle float, offset per card
+     so all three never pulse in sync. */
+  @keyframes lp-card-glow-pulse {
+    0%, 100% { box-shadow: 0 12px 28px -10px rgba(17,24,39,0.22), 0 0 0 1px var(--lp-card-border), 0 0 16px -4px rgba(240,115,0,0.22); }
+    50%      { box-shadow: 0 12px 28px -10px rgba(17,24,39,0.22), 0 0 0 1px var(--lp-card-border), 0 0 26px -2px rgba(240,115,0,0.55); }
+  }
+
+  .lp-float-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .lp-float-card.lp-float-card-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(160deg, rgba(240,115,0,0.1), rgba(255,169,77,0.08));
+  }
+
+  .lp-float-card.lp-float-card-empty img { display: none; }
+
+  .lp-float-card.lp-float-card-empty::after {
+    content: '';
+    width: 28px; height: 28px;
+    border-radius: 7px;
+    border: 2px solid rgba(240,115,0,0.4);
+    background:
+      radial-gradient(circle at 35% 35%, rgba(240,115,0,0.5) 0 4px, transparent 4px),
+      linear-gradient(transparent, transparent);
+  }
+
+  /* Emergence vectors point back toward the mascot's raised, device-
+     holding hand (upper-right of the mascot) from each card's own
+     final resting spot, so all three visibly converge from that one
+     point every loop. Each card runs a single 8s keyframes animation
+     (arc in -> float -> arc out -> wait) with ease-in-out throughout
+     for a soft, no-bounce feel; the glow pulse runs alongside on its
+     own gentle cycle, offset per card so they never pulse in sync. */
+  .lp-float-card-1 {
+    top: 10%; left: -2%;
+    width: 96px;
+    --lp-enter-x: 220px; --lp-enter-y: 150px; --lp-enter-rot: -6deg;
+    animation:
+      lp-card-loop-1 8s ease-in-out infinite,
+      lp-card-glow-pulse 4s ease-in-out 0.4s infinite;
+  }
+  .lp-float-card-2 {
+    top: -12%; left: 50%; margin-left: -62px;
+    width: 124px;
+    --lp-enter-x: 70px; --lp-enter-y: 200px; --lp-enter-rot: 6deg;
+    animation:
+      lp-card-loop-2 8s ease-in-out infinite,
+      lp-card-glow-pulse 4s ease-in-out 0.65s infinite;
+  }
+  .lp-float-card-3 {
+    top: 18%; right: 0%;
+    width: 84px;
+    --lp-enter-x: -120px; --lp-enter-y: 130px; --lp-enter-rot: -6deg;
+    animation:
+      lp-card-loop-3 8s ease-in-out infinite,
+      lp-card-glow-pulse 4s ease-in-out 0.9s infinite;
+  }
+
+  /* ── Sparkle accents near the floating avatar cards ─────────────── */
+  @keyframes lp-sparkle-fade {
+    0%, 100% { opacity: 0.15; transform: scale(0.75); }
+    50%      { opacity: 0.9; transform: scale(1); }
+  }
+
+  .lp-sparkle {
+    position: absolute;
+    z-index: 2;
+    width: 16px;
+    height: 16px;
+    background: var(--lp-accent-light);
+    clip-path: polygon(50% 0%, 61% 35%, 100% 50%, 61% 65%, 50% 100%, 39% 65%, 0% 50%, 39% 35%);
+    animation: lp-sparkle-fade 6s ease-in-out infinite;
+  }
+
+  .lp-sparkle-1 { top: 24%; left: 18%; width: 12px; height: 12px; animation-delay: 0.6s; animation-duration: 5s; }
+  .lp-sparkle-2 { top: -4%; right: 20%; animation-delay: 1.8s; animation-duration: 7s; }
+  .lp-sparkle-3 { top: 34%; right: 4%; width: 10px; height: 10px; animation-delay: 3s; animation-duration: 6.5s; }
+
+  @media (max-width: 860px) {
+    .lp-hero-inner { grid-template-columns: 1fr; text-align: center; }
+    .lp-hero-actions { justify-content: center; }
+    .lp-desc { margin-left: auto; margin-right: auto; }
+    .lp-title { font-size: 44px; }
+    .lp-subtitle { font-size: 20px; }
+    .lp-hero-visual { margin-top: 24px; }
+    .lp-float-card,
+    .lp-float-card.lp-float-card-empty,
+    .lp-sparkle {
+      display: none;
+    }
+  }
+
+  /* ── About ────────────────────────────────────────────────────── */
+  .lp-about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 68px;
+    align-items: center;
+  }
+
+  #about .lp-p {
+    font-size: 17px;
+    line-height: 1.9;
+    max-width: 640px;
+  }
+
+  #about .lp-h2 {
+    margin-bottom: 28px;
+  }
+
+  @media (max-width: 860px) {
+    .lp-about-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── Features ─────────────────────────────────────────────────── */
+  /* 2x2 grid, capped and centered so 4 cards don't stretch full-width
+     on wide screens - stays 2 columns through tablet, drops to 1 only
+     on phone-sized viewports. */
+  .lp-feature-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 1fr;
+    gap: 36px;
+    max-width: 840px;
+    margin: 56px auto 0;
+  }
+
+  .lp-feature-card {
+    position: relative;
+    padding: 38px 34px;
+    /* Promote to its own compositor layer up front (not just on :hover)
+       so the very first hover doesn't pay a layer-creation cost - that
+       one-time hit is what mid-transition "lag" usually is. */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    will-change: transform;
+  }
+
+  /* Scoped under .lp-feature-grid (not just .lp-feature-card) so this
+     out-specificities the generic ".lp-stagger > *" / ".lp-stagger.lp-revealed > *"
+     scroll-reveal rules below, which share the exact same specificity as a
+     bare ".lp-feature-card"/".lp-feature-card:hover" and - being declared
+     later in the file - would otherwise silently win the cascade and wipe
+     out this transition/transform once a card's scroll-reveal has fired.
+     Only transform + box-shadow + border-color transition, and border-color
+     is a cheap paint-only property - no width/height/margin/padding/filter
+     anywhere here, so the browser never has to re-layout on hover. */
+  .lp-feature-grid .lp-feature-card {
+    /* No transition-delay here on purpose - this rule governs the
+       mouse-leave direction (the element's state once :hover no longer
+       matches), which should settle back immediately with no delay. */
+    transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 300ms cubic-bezier(0.22, 1, 0.36, 1),
+                border-color 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* Top accent bar - hidden at rest (scaled to nothing, centered), fades
+     in while expanding outward from the center on hover. transform +
+     opacity only, same as the card itself. */
+  .lp-feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 102%;
+    height: 3.5px;
+    border-radius: 3px;
+    background: var(--lp-accent);
+    transform: translateX(-50%) scaleX(0) translateZ(0);
+    transform-origin: center;
+    opacity: 0;
+    transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1), opacity 300ms cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+    will-change: transform, opacity;
+  }
+
+  /* Entering hover gets a short, deliberate 110ms delay before the lift
+     starts (makes the interaction read as intentional rather than
+     twitchy); leaving hover uses the base rules above, which have no
+     delay, so the card settles back the instant the cursor exits. */
+  .lp-feature-grid .lp-feature-card:hover {
+    transition-delay: 110ms;
+    border-color: var(--lp-card-border-hover);
+    transform: translateY(-7px) scale(1.02) translateZ(0);
+    /* Modest blur radii (no huge 40-50px spreads) + a thin inset top
+       highlight in place of a filter: brightness() - reads as the card
+       catching more light without touching an expensive filter property. */
+    box-shadow:
+      0 14px 26px -12px rgba(240,115,0,0.24),
+      0 4px 10px -4px rgba(17,24,39,0.06),
+      inset 0 1px 0 rgba(255,255,255,0.9);
+  }
+
+  .lp-feature-card:hover::before {
+    transition-delay: 110ms;
+    transform: translateX(-50%) scaleX(1) translateZ(0);
+    opacity: 1;
+  }
+
+  .lp-feature-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(240,115,0,0.18), rgba(255,169,77,0.18));
+    color: var(--lp-accent);
+    border: 1px solid rgba(240,115,0,0.3);
+    margin-bottom: 24px;
+  }
+
+  .lp-feature-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  .lp-feature-desc {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.8;
+  }
+
+  @media (max-width: 640px) {
+    .lp-feature-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── How It Works ─────────────────────────────────────────────── */
+  .lp-steps {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 64px;
+  }
+
+  .lp-step {
+    flex: 1;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .lp-step-num {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: rgba(240,115,0,0.1);
+    border: 1px solid rgba(240,115,0,0.35);
+    color: var(--lp-accent);
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    box-shadow: 0 0 22px -4px rgba(240,115,0,0.35);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .lp-step:hover .lp-step-num {
+    transform: scale(1.08);
+    box-shadow: 0 0 28px -2px rgba(240,115,0,0.5);
+  }
+
+  .lp-step-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  .lp-step-desc {
+    font-size: 13px;
+    color: var(--text2);
+    max-width: 200px;
+    line-height: 1.6;
+  }
+
+  .lp-step-line {
+    flex: 0 0 40px;
+    height: 1px;
+    margin-top: 26px;
+    background: linear-gradient(90deg, rgba(240,115,0,0.5), rgba(255,169,77,0.5));
+  }
+
+  @media (max-width: 860px) {
+    .lp-steps { flex-direction: column; align-items: stretch; gap: 36px; }
+    .lp-step-line { display: none; }
+    .lp-step-desc { max-width: 100%; }
+  }
+
+  /* ── Project / Tech ───────────────────────────────────────────── */
+  .lp-project-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 48px;
+    align-items: center;
+  }
+
+  .lp-project-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 18px;
+  }
+
+  .lp-project-meta > div {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--lp-card-border);
+    max-width: 360px;
+  }
+
+  .lp-project-meta-label { font-size: 12px; color: var(--text3); }
+  .lp-project-meta-val { font-size: 13px; color: var(--text); font-weight: 600; font-family: var(--mono); }
+
+  .lp-tech-badges { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+
+  .lp-tech-badge {
+    padding: 9px 18px;
+    border-radius: 99px;
+    background: var(--lp-card-bg);
+    border: 1px solid var(--lp-card-border);
+    color: var(--text2);
+    font-size: 12px;
+    font-weight: 600;
+    font-family: var(--mono);
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+
+  .lp-tech-badge:hover {
+    border-color: rgba(240,115,0,0.4);
+    color: var(--lp-accent);
+  }
+
+  @media (max-width: 860px) {
+    .lp-project-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── Final CTA ────────────────────────────────────────────────── */
+  .lp-cta {
+    padding: 140px 24px;
+    background:
+      radial-gradient(ellipse 60% 60% at 50% 0%, rgba(240,115,0,0.14), transparent 65%),
+      var(--lp-bg);
+  }
+  .lp-cta-inner {
+    max-width: 640px;
+    margin: 0 auto;
+    text-align: center;
+    background: var(--lp-card-bg);
+    border: 1px solid var(--lp-card-border);
+    border-radius: 22px;
+    padding: 64px 56px;
+    box-shadow: var(--warm-card-shadow);
+  }
+
+  @media (max-width: 600px) {
+    .lp-cta-inner { padding: 40px 24px; border-radius: 18px; }
+  }
+
+  .lp-cta .lp-hero-actions .btn-start {
+    background: linear-gradient(135deg, var(--lp-accent), var(--lp-accent-light));
+    border-color: transparent;
+    box-shadow: 0 8px 28px -6px rgba(240,115,0,0.5);
+  }
+
+  /* ── Meet the Team ────────────────────────────────────────────── */
+  .lp-team-grid {
+    --lp-stagger-step: 0ms;
+    margin-top: 64px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: nowrap;
+    gap: clamp(16px, 2.5vw, 28px);
+    overflow: visible;
+    padding-top: 20px;
+    padding-bottom: 16px;
+  }
+
+  .lp-team-grid .lp-team-card {
+    flex: 0 0 auto;
+    width: clamp(70px, 9vw, 120px);
+    transition-duration: 0.4s, 0.4s;
+  }
+
+  .lp-team-card {
+    text-align: center;
+    background: none;
+    border: none;
+    box-shadow: none;
+    will-change: transform;
+    transition: transform 0.3s ease;
+  }
+
+  .lp-team-avatar {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background: var(--lp-bg-alt, #FFF0E0);
+    border: 3px solid #FFFFFF;
+    box-shadow: 0 8px 22px -8px rgba(17,24,39,0.22), 0 0 0 3px var(--lp-accent, #F07300);
+    overflow: hidden;
+    will-change: transform, box-shadow;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .lp-team-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .lp-team-grid .lp-team-card:hover {
+    transform: translateY(-8px);
+  }
+
+  .lp-team-card:hover .lp-team-avatar {
+    box-shadow: 0 14px 28px -8px rgba(17,24,39,0.32), 0 0 0 3px var(--lp-accent, #F07300), 0 0 20px 1px rgba(240,115,0,0.45);
+  }
+
+  .lp-team-name {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--text);
+    transition: color 0.3s ease;
+  }
+
+  .lp-team-card:hover .lp-team-name {
+    color: var(--lp-accent, #F07300);
+  }
+
+  /* ── Footer ───────────────────────────────────────────────────── */
+  .lp-footer {
+    background: #FFFFFF;
+    border-top: 1px solid var(--lp-card-border);
+    padding: 48px 24px;
+  }
+
+  /* Footer: a plain opacity fade to 100% - no slide, no stagger,
+     deliberately the simplest closing beat on the page. */
+  .lp-footer-fade {
+    opacity: 0;
+    transition: opacity 1s ease-out;
+  }
+
+  .lp-footer-fade.lp-revealed {
+    opacity: 1;
+  }
+
+  .lp-footer-inner {
+    max-width: 1140px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .lp-footer-brand { font-size: 14px; }
+  .lp-footer-brand .lp-brand-icon { width: 26px; height: 26px; }
+
+  .lp-footer-links { display: flex; gap: 24px; }
+  .lp-footer-links a { color: var(--text2); font-size: 13px; text-decoration: none; transition: color 0.15s ease; }
+  .lp-footer-links a:hover { color: var(--lp-accent); }
+
+  .lp-footer-copy { font-size: 12px; color: var(--text3); }
+
+  @media (max-width: 600px) {
+    .lp-footer-inner { flex-direction: column; text-align: center; }
+  }
+
+  /* ── Login Required Modal ─────────────────────────────────────── */
+  .lp-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(26,18,10,0.55);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+  }
+
+  .lp-modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .lp-modal {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    background: var(--lp-card-bg);
+    border: 1px solid var(--lp-card-border);
+    border-radius: 22px;
+    padding: 36px 32px 32px;
+    text-align: center;
+    box-shadow:
+      0 20px 60px -20px rgba(17,24,39,0.18),
+      0 0 40px -10px rgba(240,115,0,0.15);
+    transform: scale(0.92) translateY(12px);
+    opacity: 0;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease;
+  }
+
+  .lp-modal-overlay.show .lp-modal {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+
+  .lp-modal-close {
+    position: absolute;
+    top: 16px; right: 16px;
+    width: 30px; height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface2);
+    border: 1px solid var(--lp-card-border);
+    border-radius: 50%;
+    color: var(--text2);
+    cursor: pointer;
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+
+  .lp-modal-close:hover { color: var(--text); background: rgba(240,115,0,0.08); }
+
+  .lp-modal-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px; height: 60px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(240,115,0,0.18), rgba(255,169,77,0.18));
+    border: 1px solid rgba(240,115,0,0.3);
+    color: var(--lp-accent);
+    box-shadow: 0 0 32px -4px rgba(240,115,0,0.35);
+  }
+
+  .lp-modal-title {
+    font-size: 21px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 14px;
+    letter-spacing: -0.01em;
+  }
+
+  .lp-modal-message {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+
+  .lp-modal-submessage {
+    font-size: 12.5px;
+    color: var(--text3);
+    line-height: 1.65;
+    margin-bottom: 28px;
+  }
+
+  .lp-modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .lp-modal-actions .btn {
+    width: 100%;
+    justify-content: center;
+    border-radius: 14px;
+  }
+
+  .lp-modal-actions .btn-start {
+    background: linear-gradient(135deg, var(--lp-accent), var(--lp-accent-light));
+    border-color: transparent;
+    box-shadow: 0 8px 28px -6px rgba(240,115,0,0.5);
+  }
+
+  .lp-modal-actions .btn-start:hover {
+    background: linear-gradient(135deg, var(--lp-accent-light), var(--lp-accent));
+    box-shadow: 0 10px 32px -6px rgba(240,115,0,0.65);
+    transform: translateY(-1px);
+  }
+
+  .lp-modal-actions .btn:not(.btn-start) {
+    background: var(--surface2);
+    border-color: var(--lp-card-border);
+  }
+
+  .lp-modal-actions .btn:not(.btn-start):hover {
+    background: rgba(240,115,0,0.08);
+    border-color: rgba(240,115,0,0.35);
+  }
+
+  @media (min-width: 480px) {
+    .lp-modal-actions { flex-direction: row; }
+  }
+
+  @media (max-width: 480px) {
+    .lp-modal { padding: 30px 22px 26px; border-radius: 18px; }
+  }
+
+  /* ── Video Player Card (About section) ───────────────────────── */
+  .lp-video-title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 18px;
+    letter-spacing: -0.01em;
+  }
+
+  .lp-video-title-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, var(--lp-accent), var(--lp-accent-light));
+    box-shadow: 0 0 10px rgba(240,115,0,0.5);
+  }
+
+  .lp-video-card {
+    position: relative;
+    border-radius: 22px;
+    overflow: hidden;
+    background: linear-gradient(160deg, rgba(240,115,0,0.08), rgba(255,169,77,0.06)), var(--lp-card-bg);
+    border: 1px solid var(--lp-card-border);
+    aspect-ratio: 16 / 10;
+    cursor: pointer;
+    transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    /* Soft ambient orange glow, present at rest (not just on hover) */
+    box-shadow: 0 16px 40px -16px rgba(17,24,39,0.12), 0 0 30px -10px rgba(240,115,0,0.2);
+  }
+
+  .lp-video-card:hover {
+    border-color: var(--lp-card-border-hover);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 50px -16px rgba(17,24,39,0.16), 0 0 40px -10px rgba(240,115,0,0.35);
+  }
+
+  .lp-video-card video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: #0A0D1C;
+  }
+
+  .lp-video-card-poster {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+      radial-gradient(ellipse 70% 70% at 50% 40%, rgba(240,115,0,0.28), transparent 65%),
+      linear-gradient(150deg, #2A1608, #1C0F06);
+  }
+
+  .lp-video-card-poster .lp-hand-svg {
+    width: 34%;
+    opacity: 0.4;
+    color: var(--lp-accent-light);
+    filter: drop-shadow(0 0 22px rgba(240,115,0,0.5));
+  }
+
+  .lp-video-play-btn {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 64px; height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.25);
+    backdrop-filter: blur(10px);
+    color: #fff;
+    box-shadow: 0 0 0 0 rgba(240,115,0,0.6);
+    transition: transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+    z-index: 2;
+  }
+
+  .lp-video-card:hover .lp-video-play-btn {
+    transform: translate(-50%, -50%) scale(1.08);
+    background: linear-gradient(135deg, var(--lp-accent), var(--lp-accent-light));
+    box-shadow: 0 0 0 14px rgba(240,115,0,0.12), 0 0 30px -2px rgba(240,115,0,0.6);
+  }
+
+  .lp-video-play-btn svg { margin-left: 2px; }
+
+  .lp-video-card.lp-video-playing .lp-video-card-poster,
+  .lp-video-card.lp-video-playing .lp-video-play-btn {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .lp-video-duration {
+    position: absolute;
+    bottom: 14px; right: 14px;
+    z-index: 2;
+    padding: 5px 11px;
+    border-radius: 99px;
+    background: rgba(0,0,0,0.55);
+    border: 1px solid rgba(255,255,255,0.15);
+    backdrop-filter: blur(6px);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: var(--mono);
+    letter-spacing: 0.02em;
+  }
+
+  .lp-video-label {
+    position: absolute;
+    top: 14px; left: 14px;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 99px;
+    background: rgba(240,115,0,0.22);
+    border: 1px solid rgba(240,115,0,0.4);
+    backdrop-filter: blur(6px);
+    color: var(--lp-accent-light);
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .lp-video-label-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--lp-accent-light);
+    box-shadow: 0 0 6px var(--lp-accent-light);
+  }
+
+  @media (max-width: 860px) {
+    .lp-video-card { aspect-ratio: 16 / 11; margin-bottom: 8px; }
+  }
+
+
+  /* ── Scroll reveal (used by landing.js IntersectionObserver) ──────
+     Base: fade-in-up, slow (1.1s, mid-range of the requested
+     1-1.2s), ease-out. This is what every plain .lp-reveal section
+     uses by default. Direction variants below only change the
+     starting transform - the fade timing stays identical so the
+     page feels consistent. */
+  .lp-reveal,
+  .lp-reveal-left,
+  .lp-reveal-right,
+  .lp-reveal-up,
+  .lp-reveal-fade,
+  .lp-stagger {
+    opacity: 0;
+    transition: opacity 1.1s ease-out, transform 1.1s ease-out;
+  }
+
+  .lp-reveal,
+  .lp-reveal-up { transform: translateY(28px); }
+
+  .lp-reveal-left  { transform: translateX(-34px); }
+  .lp-reveal-right { transform: translateX(34px); }
+  .lp-reveal-fade  { transform: none; }
+  .lp-stagger      { transform: translateY(28px); }
+
+  .lp-reveal.lp-revealed,
+  .lp-reveal-left.lp-revealed,
+  .lp-reveal-right.lp-revealed,
+  .lp-reveal-up.lp-revealed,
+  .lp-reveal-fade.lp-revealed,
+  .lp-stagger.lp-revealed {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+
+  /* Staggered children (Features cards, tech pills): each direct
+     child of .lp-stagger gets its own delay via --lp-stagger-i,
+     written by landing.js before the parent is observed. The
+     fade-in-up motion is identical to the base .lp-reveal above,
+     just per-child instead of per-section. */
+  .lp-stagger > * {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+    transition-delay: calc(var(--lp-stagger-i, 0) * var(--lp-stagger-step, 100ms));
+  }
+
+  .lp-stagger.lp-revealed > * {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* How It Works timeline: each step fades in while sliding left
+     -> right (per the brief), and its connecting divider line
+     animates in just after, reinforcing the "progressive timeline"
+     feel. Both share the .lp-stagger > * machinery above but with
+     their own starting transform / delay step (200ms, not 100ms). */
+  .lp-steps.lp-stagger {
+    --lp-stagger-step: 200ms;
+  }
+
+  .lp-steps.lp-stagger > .lp-step {
+    transform: translateX(-26px);
+  }
+
+  .lp-steps.lp-stagger.lp-revealed > .lp-step {
+    transform: translateX(0);
+  }
+
+  .lp-steps.lp-stagger > .lp-step-line {
+    transform: none;
+    transform-origin: left center;
+    /* Lines sit between steps in DOM order, so their natural
+       --lp-stagger-i (set by landing.js) already places each line's
+       reveal right after the step before it - exactly the
+       "appears after its preceding step" timing the brief wants. */
+    clip-path: inset(0 100% 0 0);
+    transition: opacity 0.5s ease-out, clip-path 0.5s ease-out;
+  }
+
+  .lp-steps.lp-stagger.lp-revealed > .lp-step-line {
+    clip-path: inset(0 0 0 0);
+  }
+
+  /* Tech pills: rapid 50ms stagger, defined inline on the markup via
+     --lp-stagger-step so it doesn't collide with Features' 100ms or
+     How It Works' 200ms steps. */
+  .lp-tech-badges.lp-stagger {
+    --lp-stagger-step: 50ms;
+  }
+
+  /* ── Back to top button ──────────────────────────────────────────── */
+  .lp-back-to-top {
+    position: fixed;
+    right: 28px;
+    bottom: 28px;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: none;
+    background: var(--lp-accent);
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 8px 24px -6px rgba(240,115,0,0.5);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(12px);
+    transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s, background 0.2s ease, box-shadow 0.2s ease;
+    z-index: 50;
+  }
+
+  .lp-back-to-top.lp-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .lp-back-to-top:hover {
+    background: #D96500;
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 12px 30px -6px rgba(240,115,0,0.7);
+  }
+
+  .lp-back-to-top:active {
+    transform: translateY(-1px) scale(1.02);
+  }
+
+  @media (max-width: 480px) {
+    .lp-back-to-top {
+      right: 18px;
+      bottom: 18px;
+      width: 44px;
+      height: 44px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lp-float-card, .lp-hand-badge, .lp-eyebrow-dot, .lp-hand-float, .lp-mascot-blob, .lp-mp-dots circle, .lp-sparkle {
+      animation: none !important;
+    }
+    .lp-reveal, .lp-reveal-left, .lp-reveal-right, .lp-reveal-up, .lp-reveal-fade, .lp-stagger,
+    .lp-stagger > *, .lp-steps.lp-stagger > .lp-step, .lp-steps.lp-stagger > .lp-step-line,
+    .lp-footer-fade, .lp-float-card {
+      opacity: 1 !important;
+      transform: none !important;
+      clip-path: none !important;
+      transition: none !important;
+    }
+    .lp-modal-overlay, .lp-modal, .lp-back-to-top {
+      transition: none !important;
+    }
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     DARK THEME — landing page
+     Most colors already flow from style.css's --app-bg/--orange/etc
+     (redefined for dark under :root[data-theme="dark"]) through the
+     --lp-* tokens above. This block only re-tokens the --lp-* vars
+     that are hardcoded here (not var()-derived) and patches the
+     handful of literal rgba(240,115,0,...)/#FFFFFF values that would
+     otherwise stay orange-on-white. Layout/timing untouched.
+     ══════════════════════════════════════════════════════════════ */
+  :root[data-theme="dark"] {
+    --lp-accent-light: #A855F7;
+    --lp-bg-alt:       #111827;
+    --lp-card-bg:      #171F33;
+    --lp-card-border-hover: rgba(124,92,255,0.45);
+  }
+
+  [data-theme="dark"] .lp-mesh {
+    background-image: radial-gradient(circle at 1px 1px, rgba(124,92,255,0.16) 1px, transparent 0);
+  }
+  [data-theme="dark"] .lp-nav.lp-nav-scrolled { background: rgba(11,16,32,0.85); }
+  [data-theme="dark"] .lp-mobile-menu { background: rgba(11,16,32,0.96); }
+  [data-theme="dark"] .lp-hero {
+    background:
+      radial-gradient(ellipse 60% 50% at 80% 8%, rgba(124,92,255,0.18), transparent 60%),
+      radial-gradient(ellipse 50% 45% at 5% 95%, rgba(168,85,247,0.16), transparent 60%),
+      var(--lp-bg);
+  }
+  [data-theme="dark"] .lp-btn-outline { background: var(--lp-card-bg); }
+  [data-theme="dark"] .lp-hand-badge { background: rgba(124,92,255,0.14); border-color: rgba(124,92,255,0.3); }
+  [data-theme="dark"] .lp-float-card { box-shadow: 0 12px 28px -10px rgba(0,0,0,0.5), 0 0 0 1px var(--lp-card-border), 0 0 16px -4px rgba(124,92,255,0.28); }
+  @keyframes lp-card-glow-pulse-dark {
+    0%, 100% { box-shadow: 0 12px 28px -10px rgba(0,0,0,0.5), 0 0 0 1px var(--lp-card-border), 0 0 16px -4px rgba(124,92,255,0.28); }
+    50%      { box-shadow: 0 12px 28px -10px rgba(0,0,0,0.5), 0 0 0 1px var(--lp-card-border), 0 0 26px -2px rgba(124,92,255,0.6); }
+  }
+  [data-theme="dark"] .lp-float-card-1 { animation-name: lp-card-loop-1, lp-card-glow-pulse-dark; }
+  [data-theme="dark"] .lp-float-card-2 { animation-name: lp-card-loop-2, lp-card-glow-pulse-dark; }
+  [data-theme="dark"] .lp-float-card-3 { animation-name: lp-card-loop-3, lp-card-glow-pulse-dark; }
+  [data-theme="dark"] .lp-feature-icon { background: linear-gradient(135deg, rgba(124,92,255,0.22), rgba(168,85,247,0.22)); border-color: rgba(124,92,255,0.35); }
+  [data-theme="dark"] .lp-step-num { background: rgba(124,92,255,0.14); border-color: rgba(124,92,255,0.4); box-shadow: 0 0 22px -4px rgba(124,92,255,0.4); }
+  [data-theme="dark"] .lp-step:hover .lp-step-num { box-shadow: 0 0 28px -2px rgba(124,92,255,0.55); }
+  [data-theme="dark"] .lp-step-line { background: linear-gradient(90deg, rgba(124,92,255,0.5), rgba(168,85,247,0.5)); }
+  [data-theme="dark"] .lp-cta {
+    background:
+      radial-gradient(ellipse 60% 60% at 50% 0%, rgba(124,92,255,0.18), transparent 65%),
+      var(--lp-bg);
+  }
+  [data-theme="dark"] .lp-team-avatar { border-color: var(--surface); box-shadow: 0 8px 22px -8px rgba(0,0,0,0.5), 0 0 0 3px var(--lp-accent, #7C5CFF); }
+  [data-theme="dark"] .lp-team-card:hover .lp-team-avatar { box-shadow: 0 14px 28px -8px rgba(0,0,0,0.6), 0 0 0 3px var(--lp-accent, #7C5CFF), 0 0 20px 1px rgba(124,92,255,0.5); }
+  [data-theme="dark"] .lp-footer { background: var(--surface); border-top-color: var(--lp-card-border); }
+  [data-theme="dark"] .lp-modal-overlay { background: rgba(0,0,0,0.65); }
+  [data-theme="dark"] .lp-modal { box-shadow: 0 20px 60px -20px rgba(0,0,0,0.6), 0 0 40px -10px rgba(124,92,255,0.25); }
+  [data-theme="dark"] .lp-modal-icon {
+    background: linear-gradient(135deg, rgba(124,92,255,0.22), rgba(168,85,247,0.22));
+    border-color: rgba(124,92,255,0.35);
+    box-shadow: 0 0 32px -4px rgba(124,92,255,0.45);
+  }
+  [data-theme="dark"] .lp-video-title-dot { box-shadow: 0 0 10px rgba(124,92,255,0.55); }
+  [data-theme="dark"] .lp-video-card { box-shadow: 0 16px 40px -16px rgba(0,0,0,0.5), 0 0 30px -10px rgba(124,92,255,0.3); }
+  [data-theme="dark"] .lp-video-card:hover { box-shadow: 0 20px 50px -16px rgba(0,0,0,0.6), 0 0 40px -10px rgba(124,92,255,0.45); }
+  [data-theme="dark"] .lp-video-play-btn { box-shadow: 0 0 0 0 rgba(124,92,255,0.6); }
+  [data-theme="dark"] .lp-video-card:hover .lp-video-play-btn { box-shadow: 0 0 0 14px rgba(124,92,255,0.14), 0 0 30px -2px rgba(124,92,255,0.65); }
+  [data-theme="dark"] .lp-video-label { background: rgba(124,92,255,0.26); border-color: rgba(124,92,255,0.45); }
+  [data-theme="dark"] .lp-back-to-top { box-shadow: 0 8px 24px -6px rgba(124,92,255,0.5); }
+  [data-theme="dark"] .lp-back-to-top:hover { background: #6D46E0; box-shadow: 0 12px 30px -6px rgba(124,92,255,0.7); }
